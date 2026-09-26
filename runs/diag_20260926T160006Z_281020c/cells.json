@@ -1,0 +1,75 @@
+[
+  {
+    "cpu_s": 130.62963963500002,
+    "encoder": "informative_control",
+    "encoder_params_trainable": 0,
+    "epoch_candidates": {
+      "20": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.4730680366098405,
+          "reward_mse": 0.022412120733487372
+        }
+      },
+      "40": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.478235153455451,
+          "reward_mse": 0.023216171038812145
+        }
+      },
+      "80": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.496533723478911,
+          "reward_mse": 0.022147829045838646
+        }
+      }
+    },
+    "head_params": 524,
+    "head_sha256": "7c4f45e2de13c849d82d7cce6f489a4b27f18c65b3105f8ceecd847a034b30b0",
+    "mac": 1466402656,
+    "peak_rss_mb_after": 26.63671875,
+    "planning": {
+      "first_planner_decisions": {
+        "FORWARD": 0,
+        "LEFT": 100,
+        "RIGHT": 100
+      },
+      "forced_commit_accuracy": 1.0,
+      "forced_commit_expected_accuracy": 1.0,
+      "forced_commit_ties": 0,
+      "ledger": {
+        "cap": 2800,
+        "label": "test:planning",
+        "resets": 200,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 1333,
+          "main": 0
+        },
+        "transitions_total": 1333
+      },
+      "mean_return": 1.0,
+      "n_episodes": 200,
+      "success_rate": 1.0,
+      "timeout_rate": 0.0
+    },
+    "probe": {
+      "calibration_accuracy": 1.0,
+      "n_calibration": 200,
+      "n_test": 200,
+      "status": "OK",
+      "test_accuracy": 1.0
+    },
+    "seed": 1000,
+    "selected_at_max_candidate": true,
+    "selected_epochs": 80,
+    "standardizer_source_split": "train",
+    "status": "OK",
+    "wall_s": 131.78712505900006
+  }
+]
