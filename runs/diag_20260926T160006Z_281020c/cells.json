@@ -71,5 +71,78 @@
     "standardizer_source_split": "train",
     "status": "OK",
     "wall_s": 131.78712505900006
+  },
+  {
+    "cpu_s": 131.250875066,
+    "encoder": "random_recurrent",
+    "encoder_params_trainable": 0,
+    "epoch_candidates": {
+      "20": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.396599390852697,
+          "reward_mse": 0.10171187682359262
+        }
+      },
+      "40": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.4064674810975166,
+          "reward_mse": 0.10217585766455989
+        }
+      },
+      "80": {
+        "dev": {
+          "n_targets": 3573,
+          "obs_nll": 2.422584817686814,
+          "reward_mse": 0.1017442810438314
+        }
+      }
+    },
+    "head_params": 524,
+    "head_sha256": "0a6f866a429513221c6c53983c0777bbbbcb8266a20759399510a1f1495eb8bd",
+    "mac": 1474690320,
+    "peak_rss_mb_after": 26.63671875,
+    "planning": {
+      "first_planner_decisions": {
+        "FORWARD": 0,
+        "LEFT": 0,
+        "RIGHT": 200
+      },
+      "forced_commit_accuracy": 0.5,
+      "forced_commit_expected_accuracy": 0.5,
+      "forced_commit_ties": 0,
+      "ledger": {
+        "cap": 2800,
+        "label": "test:planning",
+        "resets": 200,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 1333,
+          "main": 0
+        },
+        "transitions_total": 1333
+      },
+      "mean_return": 0.0,
+      "n_episodes": 200,
+      "success_rate": 0.5,
+      "timeout_rate": 0.0
+    },
+    "probe": {
+      "calibration_accuracy": 0.55,
+      "n_calibration": 200,
+      "n_test": 200,
+      "status": "OK",
+      "test_accuracy": 0.47
+    },
+    "seed": 1000,
+    "selected_at_max_candidate": false,
+    "selected_epochs": 20,
+    "standardizer_source_split": "train",
+    "status": "OK",
+    "wall_s": 132.4153848320001
   }
 ]
