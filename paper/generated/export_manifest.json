@@ -1,0 +1,13 @@
+{
+  "files_sha256": {
+    "configs/diag_eval_discriminability.json": "637f4183a38fade1b3c4e492470c01e7cc94cccb11d8ed266554b4a50cdc2f67",
+    "runs/diag_20260926T160006Z_281020c/cells.json": "ef5f759f320e346fb4a413849c0733d294ce60d613da95293643ea43b364e899",
+    "runs/diag_20260926T160006Z_281020c/manifest.json": "7f50d1c1bc7bc126d2d363d56d7c56575d0152260bba4521604622d0a44cf88f",
+    "runs/diag_20260926T160006Z_281020c/verdict.json": "cfad9b0840d8834a4ef86d68d62ebf1acace1bacaef6b7ae93eb498b3b3649e3"
+  },
+  "n_macros": 67,
+  "sources": {
+    "diagnostic": "runs/diag_20260926T160006Z_281020c",
+    "diagnostic_config": "configs/diag_eval_discriminability.json"
+  }
+}

@@ -1,0 +1,16 @@
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+\paragraph{What the current evidence supports.}
+The accounting and information-access properties hold in our implementation, as checked by unit tests. These are technical checks, not evidence about any method. The fixed-encoder diagnostic shows that the readout can separate an informative history summary from uninformative ones by a wide margin in this task. It also shows that, at the diagnostic settings, an untrained recurrent encoder does not already solve the junction decision. This removes one reason a comparison of learned encoders could be uninformative. It does not show that any learned encoder fills the gap.
+
+\paragraph{Limitations.}
+\begin{itemize}
+  \item \textbf{One synthetic task family.} All results come from a small deterministic aliased T-maze. The extreme values of 0.5 and 1.0 reflect this task and should not be expected elsewhere.
+  \item \textbf{Reset privilege.} Branching requires a simulator that can save and restore arbitrary states. Any advantage of branching collection is conditional on that privilege, and it does not transfer to systems that lack it.
+  \item \textbf{Three seeds.} Each comparison uses three seeds of one configuration. These are repetitions under a fixed design, not independent replications, and a non-significant or inconsistent contrast is not evidence of equivalence.
+  \item \textbf{Forced-commit primary metric.} The primary metric scores one aliased decision under a scripted prefix. It is not a planning success rate, and we make no claim about other policies, horizons, or states outside the data's coverage.
+  \item \textbf{Head-dependent readout.} Conclusions are conditional on the frozen-encoder readout: feature standardization, a small reward head, three epoch candidates, and a depth-\DiagCfgPlanHorizon{} planner. A different readout could rank encoders differently. The probe is linear, and its failure is not a proof of absent information.
+  \item \textbf{Weak comparison set.} The action-free ablation is not a strong baseline. We have not compared against an external action-conditioned method, for example the approach of \citet{kwon2024future}, or against recurrent world models \citep{hafner2023dreamerv3,samsami2024r2i}.
+  \item \textbf{Protocol changes after early looks.} Several protocol choices were revised after smoke runs and before any comparison of learned encoders: clue-balanced test episodes, probe feature standardization, forced-commit as the primary metric, and longer head training. Appendix~\ref{app:history} lists these changes.
+\end{itemize}

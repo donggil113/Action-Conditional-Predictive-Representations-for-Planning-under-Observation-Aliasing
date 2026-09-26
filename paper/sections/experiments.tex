@@ -1,0 +1,29 @@
+\section{Experiments and Observations}
+\label{sec:experiments}
+
+\subsection{Evaluator diagnostic with fixed encoders}
+\label{sec:diag}
+
+\paragraph{Question and design.}
+Before comparing learned encoders, we asked whether the readout of \S\ref{sec:setting} can separate informative from uninformative histories at all. If it cannot, a learned encoder cannot be credited with anything. Three fixed encoders went through the identical readout: the history-only informative control, the untrained recurrent encoder, and the memoryless control. The diagnostic used \DiagCfgTrainBudget{} readout-training transitions (collected with branching), \DiagCfgDevBudget{} development transitions, \DiagCfgNCalib{} calibration episodes, and \DiagCfgNTest{} clue-balanced test episodes per seed. Seeds \DiagSeeds{} were reserved for this diagnostic. The decision rules were fixed before the run. The evaluator is unresolved if the informative control falls below \DiagCfgPosMin{} or the memoryless control deviates from 0.5 by more than \DiagCfgNegDev{} in any seed. There is headroom if the informative control exceeds the untrained encoder by at least the minimum effect of interest (\DiagCfgMIE) in every seed.
+
+\paragraph{Observations.}
+Table~\ref{tab:diag} lists the per-seed results. All \DiagNumOK{} of \DiagNumCells{} cells completed, and the verdict is \DiagVerdict{}. The informative control reached forced-commit accuracy \DiagForcedInfoMin{} in every seed. The untrained recurrent encoder and the memoryless control both stayed at exactly \DiagForcedRandMax{}. Each chose the same arm in every test episode, which on a clue-balanced test set gives exactly one half. A leak of episode index or of the balancing pattern into the inputs would have shown up as above-chance accuracy for these clue-blind encoders, and it did not. The linear clue probe on the untrained encoder's junction features scored between \DiagProbeRandMin{} and \DiagProbeRandMax{} on test episodes. The readout could not extract the clue from these features, but that does not show that the features carry no clue information.
+
+\paragraph{The full-action metric is confounded.}
+Full-action success separates the two clue-blind encoders, for which forced-commit accuracy is identical. The untrained encoder committed to an arm (success \DiagSuccessRandMax{}). The memoryless control, in two seeds, preferred \textsc{forward} at the junction until timeout (timeout rate up to \DiagTimeoutMemMax{}). The difference reflects commit-versus-stall behaviour of a model-predictive planner with an uninformative head, not the clue content of the representation. We therefore report full-action metrics but do not base comparisons on them.
+
+\begin{table}[t]
+\caption{Evaluator diagnostic (fixed encoders, symmetric maze). Entries are per seed (\DiagSeeds). Forced-commit is the primary junction-decision metric. Full-action success and timeout come from the unrestricted planner. ``Epochs'' is the head checkpoint selected on development reward error. Source: \texttt{runs/diag\_20260926T160006Z\_281020c}.}
+\label{tab:diag}
+\centering
+\small
+\resizebox{\linewidth}{!}{\input{tables/diag_controls}}
+\end{table}
+
+\paragraph{Cost.}
+The diagnostic used \DiagTransitionsAll{} environment transitions in total. Of these, \DiagTransitionsTrainMain{} main and \DiagTransitionsTrainBranch{} branch steps were readout-training data, with \DiagTransitionsTrainRestores{} restores. Test episodes used \DiagTransitionsTest{} transitions and no restores. The run took \DiagCPUSeconds{} CPU seconds and \DiagTotalGMAC{} GMAC in a single process with peak resident memory \DiagPeakRSSMB{} MB (commit \texttt{\DiagCommit}). The readout-training data in this diagnostic were collected with branching, so this readout was \emph{not} restore-free. The 2$\times$2 study below uses a separate restore-free readout pool.
+
+\subsection{2$\times$2 study: action conditioning $\times$ branching}
+\label{sec:study}
+\input{sections/study_results}

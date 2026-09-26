@@ -1,0 +1,4 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Comparisons of predictive representation learners that use simulator branching should charge every branch step to the same transition budget as ordinary interaction. They should count restores as a separate privilege, and they should report compute separately from experience. We implemented such an accounting in a small aliased T-maze, together with a fixed frozen-encoder readout. We showed that this readout discriminates a history-only informative control from an untrained recurrent encoder and a memoryless control, and that the full-action success metric is confounded by stalling. These results establish only that the evaluation can detect differences in this task. Whether branching collection or action conditioning provides such differences under an equal budget is the question of the 2$\times$2 study, whose status is reported in \S\ref{sec:study}.

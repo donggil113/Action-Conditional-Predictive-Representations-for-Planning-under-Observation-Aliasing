@@ -1,0 +1,9 @@
+None of the following has been run. No result of any of them appears in this draft.
+\begin{itemize}
+  \item \textbf{2$\times$2 study (specified in v0).} The arms are \acp{} and \msp{}, each with and without branching, plus an untrained recurrent encoder and the history-only informative control, with three seeds in the symmetric maze. The paired contrasts per seed are: ACP$_b-$ACP$_n$, ACP$_b-$MSP$_b$, ACP$_n-$MSP$_n$, each learned arm minus the untrained encoder, and the interaction (ACP$_b-$MSP$_b$)$-$(ACP$_n-$MSP$_n$). The decision labels are \texttt{EVALUATOR\_UNRESOLVED}, \texttt{INCOMPLETE}, \texttt{SATURATED\_COMPARISON}, \texttt{LEARNING\_BENEFIT\_NOT\_SUPPORTED}, and \texttt{PRELIMINARY\_COLLECTION\_BENEFIT}, together with an action-conditioning-only outcome that cannot be distinguished from the existing explanation.
+  \item \textbf{Pre-registered pilot.} Ten seeds in both maze variants with a paired bootstrap analysis. It was not approved and not run.
+  \item \textbf{Asymmetric control variant.} In this variant, action-marginal futures also carry the clue. It was not run.
+  \item \textbf{Unstandardized readout.} The head without feature standardization, as in the original pilot plan. It was not run.
+  \item \textbf{External comparisons.} An action-conditioned future-prediction method in the style of \citet{kwon2024future}, and recurrent world models. Neither was run.
+  \item \textbf{Other environments.} Longer corridors, other task families, and partially observable continuous control. None was run, and none is planned without a positive result here.
+\end{itemize}

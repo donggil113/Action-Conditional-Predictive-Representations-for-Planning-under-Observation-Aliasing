@@ -1,0 +1,21 @@
+\section{Reproduction commands and technical checks}
+\label{app:repro}
+
+All code is pure Python 3.11 with no third-party packages. The commands below reproduce the reported runs, starting from the repository root.
+\begin{verbatim}
+python3 -m unittest discover -s tests -t . -v
+OMP_NUM_THREADS=1 python3 -m acpr.diagnose \
+  --config configs/diag_eval_discriminability.json --out runs/<id>
+python3 paper/export_results.py
+\end{verbatim}
+\input{sections/appendix_study_cmd}
+The unit tests check the following technical properties. First, the aliasing construction, verified by exact enumeration. Second, transition accounting: the recorded main and branch steps equal the ledger totals, the cap is hard and spent exactly, and restores are counted. Third, information access: signatures, field whitelists, serialized datasets, and encoder causality. Fourth, split disjointness. Fifth, horizon semantics: termination padding versus truncation masking. Sixth, finite-difference gradient checks of the pure-Python autodiff. Seventh, positive and negative controls of the readout, and CPU-cap enforcement through \texttt{RLIMIT\_CPU}. These are numeric fixture checks of the implementation. They are not proofs and not evidence of method efficacy.
+
+\section{History of protocol changes}
+\label{app:history}
+
+The protocol changed during development, and we record the changes here for transparency. After the first smoke run, the clue probe collapsed to the majority class, and planner metrics were dominated by the test set's clue base rate. The probe features were therefore standardized, and test clues were balanced by the evaluator. After the second smoke run and a positive-control check, forced-commit accuracy replaced full-action success as the primary metric. The reason was that an under-trained head made the full-action planner stall at the junction. For the same reason, head training was lengthened. The evaluator diagnostic then added train-only standardization of encoder features before the head, applied identically to every encoder, and checkpoint selection among \DiagCfgHeadEpochs{} epochs. None of these changes was made after observing learned-encoder comparisons. They were, however, made after looking at smoke and control outputs, so seeds used in those runs count as development data.
+
+\section{Planned experiments (NOT RUN)}
+\label{app:planned}
+\input{sections/appendix_planned}

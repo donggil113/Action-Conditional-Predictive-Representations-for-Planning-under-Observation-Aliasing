@@ -1,0 +1,57 @@
+% Internal working draft v0. NOT SUBMITTED to ICLR 2027 or any other venue.
+% Formatted with the unmodified official ICLR 2027 style files (anonymous mode);
+% see paper/BUILD.md for provenance and hashes.
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2027_conference,times}
+
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+
+\input{generated/numbers.tex}
+
+\newcommand{\acp}{\textsc{acp}}
+\newcommand{\msp}{\textsc{msp}}
+
+\title{Accounting for Simulator Branching in\\Predictive Representation Learning\\[4pt]
+{\normalsize\rm Internal working draft v0 --- not submitted to any venue}}
+
+% The anonymous mode of the official style ignores \author and prints
+% "Anonymous authors / Paper under double-blind review". This draft is not
+% under review anywhere; see the first-page note below.
+\author{Anonymous authors}
+
+\begin{document}
+
+\maketitle
+% The unmodified style's anonymous header reads "Under review as a conference
+% paper at ICLR 2027". That would misstate the status of this internal draft,
+% so the running header text is replaced here (the .sty file is untouched).
+\lhead{Internal working draft --- not submitted}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\input{sections/introduction}
+\input{sections/related}
+\input{sections/setting}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/discussion}
+\input{sections/conclusion}
+\label{sec:end-of-main-text}
+
+\input{sections/statements}
+
+\bibliography{references}
+\bibliographystyle{iclr2027_conference}
+
+\appendix
+\input{appendix}
+
+\end{document}
