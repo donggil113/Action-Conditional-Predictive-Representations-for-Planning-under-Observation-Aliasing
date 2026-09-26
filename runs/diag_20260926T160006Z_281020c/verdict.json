@@ -1,0 +1,84 @@
+{
+  "complete_seeds": [
+    1000,
+    1001,
+    1002
+  ],
+  "full_action_positive_control": "OK",
+  "incomplete_seeds": [],
+  "metric": "forced_commit_accuracy",
+  "negative_control_ok": true,
+  "per_seed": [
+    {
+      "full_action_mean_return": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.0
+      },
+      "full_action_success": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.5,
+        "random_recurrent": 0.5
+      },
+      "full_action_timeout": {
+        "informative_control": 0.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.0
+      },
+      "headroom_informative_minus_random": 0.5,
+      "informative": 1.0,
+      "memoryless": 0.5,
+      "random": 0.5,
+      "random_minus_memoryless": 0.0,
+      "seed": 1000
+    },
+    {
+      "full_action_mean_return": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.0
+      },
+      "full_action_success": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.5
+      },
+      "full_action_timeout": {
+        "informative_control": 0.0,
+        "memoryless_control": 1.0,
+        "random_recurrent": 0.0
+      },
+      "headroom_informative_minus_random": 0.5,
+      "informative": 1.0,
+      "memoryless": 0.5,
+      "random": 0.5,
+      "random_minus_memoryless": 0.0,
+      "seed": 1001
+    },
+    {
+      "full_action_mean_return": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.0
+      },
+      "full_action_success": {
+        "informative_control": 1.0,
+        "memoryless_control": 0.0,
+        "random_recurrent": 0.5
+      },
+      "full_action_timeout": {
+        "informative_control": 0.0,
+        "memoryless_control": 1.0,
+        "random_recurrent": 0.0
+      },
+      "headroom_informative_minus_random": 0.5,
+      "informative": 1.0,
+      "memoryless": 0.5,
+      "random": 0.5,
+      "random_minus_memoryless": 0.0,
+      "seed": 1002
+    }
+  ],
+  "positive_control_ok": true,
+  "verdict": "HEADROOM_PRESENT"
+}

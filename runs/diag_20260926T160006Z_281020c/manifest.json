@@ -1,0 +1,265 @@
+{
+  "command": "python3 -m acpr.diagnose --config configs/diag_eval_discriminability.json --out runs/diag_20260926T160006Z_281020c",
+  "config_sha256": "4cdba8048d0f60ba387e40643f675e2a9b4e85e7934be89b16ae2eb8b0f68224",
+  "data": {
+    "1000": {
+      "calibration_probe_ledger": {
+        "cap": 2800,
+        "label": "calibration:probe",
+        "resets": 200,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 1101,
+          "main": 0
+        },
+        "transitions_total": 1101
+      },
+      "dev": {
+        "ledger": {
+          "cap": 2000,
+          "label": "dev:collect",
+          "resets": 85,
+          "restore_allowed": true,
+          "restores": 644,
+          "snapshots": 161,
+          "transitions_by_kind": {
+            "branch": 1289,
+            "eval": 0,
+            "main": 711
+          },
+          "transitions_total": 2000
+        },
+        "sha256": "24245d1fba4c1e76ca535d44e491d6a00bbbc8d5487ea2ede51ab68b0c0dce0e",
+        "stats": {
+          "branch_sets": 161,
+          "branch_sets_skipped_for_budget": 3,
+          "budget_truncated_episodes": 1,
+          "episodes": 85,
+          "terminated_episodes": 83,
+          "timeout_episodes": 1
+        }
+      },
+      "prep_cpu_s": 0.154407496,
+      "train": {
+        "ledger": {
+          "cap": 10000,
+          "label": "train:collect",
+          "resets": 417,
+          "restore_allowed": true,
+          "restores": 3260,
+          "snapshots": 815,
+          "transitions_by_kind": {
+            "branch": 6573,
+            "eval": 0,
+            "main": 3427
+          },
+          "transitions_total": 10000
+        },
+        "sha256": "26863c67bc88750f121b43418ee8ff31d768679a44fba069623dfca77e0fe65b",
+        "stats": {
+          "branch_sets": 815,
+          "branch_sets_skipped_for_budget": 0,
+          "budget_truncated_episodes": 1,
+          "episodes": 417,
+          "terminated_episodes": 412,
+          "timeout_episodes": 4
+        }
+      }
+    },
+    "1001": {
+      "calibration_probe_ledger": {
+        "cap": 2800,
+        "label": "calibration:probe",
+        "resets": 200,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 1096,
+          "main": 0
+        },
+        "transitions_total": 1096
+      },
+      "dev": {
+        "ledger": {
+          "cap": 2000,
+          "label": "dev:collect",
+          "resets": 79,
+          "restore_allowed": true,
+          "restores": 676,
+          "snapshots": 169,
+          "transitions_by_kind": {
+            "branch": 1365,
+            "eval": 0,
+            "main": 635
+          },
+          "transitions_total": 2000
+        },
+        "sha256": "aa70ca06e78e5642fa02c273fcbc12ebcfdf3697beed9cbbd0f053f2a4aeaa4c",
+        "stats": {
+          "branch_sets": 169,
+          "branch_sets_skipped_for_budget": 2,
+          "budget_truncated_episodes": 1,
+          "episodes": 79,
+          "terminated_episodes": 77,
+          "timeout_episodes": 1
+        }
+      },
+      "prep_cpu_s": 0.15838798599997972,
+      "train": {
+        "ledger": {
+          "cap": 10000,
+          "label": "train:collect",
+          "resets": 404,
+          "restore_allowed": true,
+          "restores": 3268,
+          "snapshots": 817,
+          "transitions_by_kind": {
+            "branch": 6590,
+            "eval": 0,
+            "main": 3410
+          },
+          "transitions_total": 10000
+        },
+        "sha256": "17f6a1fc5aadc6263ee1d0bdfc3267b309999f7c9d0ee9a70bafdc6f053585e2",
+        "stats": {
+          "branch_sets": 817,
+          "branch_sets_skipped_for_budget": 2,
+          "budget_truncated_episodes": 1,
+          "episodes": 404,
+          "terminated_episodes": 396,
+          "timeout_episodes": 7
+        }
+      }
+    },
+    "1002": {
+      "calibration_probe_ledger": {
+        "cap": 2800,
+        "label": "calibration:probe",
+        "resets": 200,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 1089,
+          "main": 0
+        },
+        "transitions_total": 1089
+      },
+      "dev": {
+        "ledger": {
+          "cap": 2000,
+          "label": "dev:collect",
+          "resets": 85,
+          "restore_allowed": true,
+          "restores": 660,
+          "snapshots": 165,
+          "transitions_by_kind": {
+            "branch": 1302,
+            "eval": 0,
+            "main": 698
+          },
+          "transitions_total": 2000
+        },
+        "sha256": "686664f1a4d41c223298539c4e94f61c16f5a77679d8d8a7a17a8578b09f01fd",
+        "stats": {
+          "branch_sets": 165,
+          "branch_sets_skipped_for_budget": 0,
+          "budget_truncated_episodes": 1,
+          "episodes": 85,
+          "terminated_episodes": 83,
+          "timeout_episodes": 1
+        }
+      },
+      "prep_cpu_s": 0.23645683000006557,
+      "train": {
+        "ledger": {
+          "cap": 10000,
+          "label": "train:collect",
+          "resets": 391,
+          "restore_allowed": true,
+          "restores": 3360,
+          "snapshots": 840,
+          "transitions_by_kind": {
+            "branch": 6734,
+            "eval": 0,
+            "main": 3266
+          },
+          "transitions_total": 10000
+        },
+        "sha256": "92de3cd24bb60c731ec775d273febb040106b235adededc5ec23b40b82f0aca9",
+        "stats": {
+          "branch_sets": 840,
+          "branch_sets_skipped_for_budget": 0,
+          "budget_truncated_episodes": 1,
+          "episodes": 391,
+          "terminated_episodes": 384,
+          "timeout_episodes": 6
+        }
+      }
+    }
+  },
+  "env_transitions": {
+    "all": 53503,
+    "calibration_eval": 3286,
+    "dev_branch": 3956,
+    "dev_main": 2044,
+    "dev_restores": 1980,
+    "test_eval": 14217,
+    "test_restores": 0,
+    "train_branch": 19897,
+    "train_main": 10103,
+    "train_restores": 9888
+  },
+  "environment": {
+    "cpu_count": 4,
+    "gpu_used": false,
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+    "third_party_packages_used": []
+  },
+  "git": {
+    "commit": "281020c4f2783342f17aedbae1a3a2db0e276dfe",
+    "dirty_paths": [],
+    "tracked_files_dirty": false
+  },
+  "limits": {
+    "RLIMIT_AS": [
+      3221225472,
+      3221225472
+    ],
+    "RLIMIT_CPU": [
+      1650,
+      1670
+    ]
+  },
+  "peak_rss_mb": 26.88671875,
+  "python_threads_at_start": 1,
+  "run_kind": "diagnostic",
+  "source_sha256": "19472a22b7649c2a5e19c2f32f089754d013af76e3508668db328a82f4865f2a",
+  "status_counts": {
+    "CAP_EXCEEDED": 0,
+    "FAILED": 0,
+    "NOT_RUN": 0,
+    "OK": 9,
+    "OOM": 0
+  },
+  "stop_reason": null,
+  "thread_env": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "time": {
+    "process_cpu_s": 1188.524336497,
+    "wall_s": 1199.491495338
+  },
+  "total_mac": 13167847904
+}

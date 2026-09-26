@@ -18,11 +18,12 @@ numpy, torch, pytest가 설치되어 있지 않다. 지시에 따라 설치하�
 | `acpr/collect.py` | budget 안에서 branching 수집. RNG를 분리해 branching이 main trajectory를 바꾸지 않게 한다 |
 | `acpr/splits.py` | train/dev/calibration/test의 서로 겹치지 않는 seed stream, 내용 중복률 |
 | `acpr/autodiff.py` | vector 단위 reverse-mode autodiff, Adam, MAC 계수기 |
-| `acpr/models.py` | Elman RNN encoder, latent rollout predictor (ACP: action one-hot / MSP: 0 벡터, 파라미터 수 동일) |
+| `acpr/models.py` | Elman RNN encoder, latent rollout predictor (ACP: action one-hot / MSP: 0 벡터 = **action-free ablation**. 파라미터 수는 명목상 같지만 유효 학습 capacity나 표현력이 같다는 뜻은 아니다) |
 | `acpr/train.py` | k-step window (종료 뒤는 pad하고 supervise, 절단 뒤는 mask), 학습 루프 |
 | `acpr/evaluate.py` | 동결 encoder + stage-2 reward head + 전수 MPC planner, forced-commit 정확도, clue probe |
 | `acpr/run.py` | CPU runner (manifest, raw log, FAILED/NOT_RUN 보존, 파일럿 승인 게이트) |
 | `acpr/analyze.py` | 사전등록한 paired bootstrap 분석과 중단 규칙 플래그 |
+| `acpr/controls.py`, `acpr/diagnose.py` | 평가 판별력 진단: informative·random·memoryless encoder를 같은 head/planner로 비교하고, CPU·메모리 cap을 강제한다 ([결과](docs/DIAG_EVAL_DISCRIMINABILITY.md)) |
 
 ## 실행
 ```bash

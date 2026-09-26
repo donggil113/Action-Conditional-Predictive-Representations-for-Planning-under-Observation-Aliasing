@@ -6,6 +6,7 @@
 | 과학 | **SCIENCE_NOT_EVALUATED**: 파일럿 미실행. smoke 수치는 과학적 결과가 아니다 |
 | 파일럿 | **PREREGISTERED_NOT_APPROVED**: `configs/pilot_memory_prereg.json`, `pilot_approved=false`이며 runner가 거부한다 (exit 2) |
 | 신규성 | 인증하지 않음. [docs/PRIOR_ART.md](docs/PRIOR_ART.md) 기준으로 핵심 구성요소는 모두 기존 연구에 있다 |
+| 평가 판별력 진단 (2026-09-26 2단계) | **HEADROOM_PRESENT** (기술 진단, 합성 환경). 9/9 cell OK. 요약은 §7, 상세는 [docs/DIAG_EVAL_DISCRIMINABILITY.md](docs/DIAG_EVAL_DISCRIMINABILITY.md) |
 
 소프트웨어 측면에서 파일럿을 실행할 수는 있다. 그러나 이는 신규성 인증이나 채택 가능성 확인이 아니며, 아래 blocker와 위험을 먼저 검토해야 한다.
 
@@ -18,7 +19,7 @@
 | ground truth는 collector/evaluator 전용, actor에는 history만 | 완료. 시그니처, 필드 whitelist, 직렬화, spy 테스트 | `acpr/data.py`, `tests/test_information_access.py` |
 | simulator branching, 모든 branch transition을 예산에 포함 | 완료. hard cap, 실지출 = cap, restore 별도 계수 | `acpr/accounting.py`, `acpr/collect.py`, `tests/test_accounting.py` |
 | 작은 recurrent encoder + action-conditional predictor | 완료. Elman RNN + latent rollout, 유한차분 gradient 검사 | `acpr/models.py`, `acpr/autodiff.py`, `tests/test_autodiff.py` |
-| 같은 history·capacity·branch experience의 multi-step predictive 기준선 | 완료. MSP는 같은 데이터·초기화·파라미터 수를 쓰고 action 입력만 0 | `tests/test_information_access.py::TestArmParity` |
+| 같은 history·capacity·branch experience의 multi-step predictive 기준선 | 완료. MSP는 같은 데이터·초기화·파라미터 수를 쓰고 action 입력만 0이다. (2단계 명확화: MSP는 **action-free ablation**이다. 명목상 파라미터 수가 같다고 해서 강한 action-conditional baseline과 표현력이나 유효 학습 capacity가 같은 것은 아니다. action 열 hidden×\|A\|개는 gradient를 받지 않는다) | `tests/test_information_access.py::TestArmParity` |
 | 정보 접근, episode split, transition 회계, horizon 테스트 | 완료 | `tests/test_{information_access,splits,accounting,horizon}.py` |
 | 최소 CPU runner | 완료 | `acpr/run.py`, `configs/smoke.json` |
 
@@ -71,3 +72,48 @@ smoke run 2의 source sha256은 현재 `acpr/`와 같다 (`461cedc9…`). 테스
 ## 6. 다음 단계 (각각 별도 승인 필요)
 1. 파일럿 승인: `pilot_approved=true`로 새 커밋을 만든 뒤 seed별 병렬 실행 (`--seeds`), 이어서 `python3 -m acpr.analyze …`.
 2. positive pilot이고 **STOP_EXPANSION 플래그가 없을 때만** partial-observation continuous control로 확장을 검토한다. 이때 torch 설치 승인이 필요하다.
+
+## 7. 2단계: random encoder와 downstream 평가의 판별력 진단 (인수 기준 `6fbfe7f`)
+**승인 범위:** 제한된 CPU 실행으로 이 단계 전체 1,800 CPU-s 이하. 기존 full pilot(`pilot_approved=false`)과 continuous-control 확장은 승인되지 않았고 실행하지 않았다. 설치와 다운로드는 없다.
+
+### 변경 (코드는 영어, 기존 테스트는 수정하지 않음)
+- `acpr/controls.py`: history-only informative control, memoryless control, train-split 전용 standardizer (다른 split을 넣으면 거부).
+- `acpr/train.py`: `on_epoch_end` hook. epoch 후보를 한 run의 checkpoint에서 얻는다. `acpr/models.py`: `copy_predictor`.
+- `acpr/evaluate.py`: forced-commit 동률 수와 기댓값 정확도 진단을 추가했다. 기존 `forced_commit_accuracy`와 RNG 소비는 바뀌지 않는다.
+- `acpr/diagnose.py`: `RLIMIT_CPU`/`RLIMIT_AS`로 cap을 강제하고, cell 전에 비용을 검사하며, CAP_EXCEEDED·NOT_RUN·OOM·FAILED를 보존한다. 사전 고정 판정 규칙을 적용한다.
+- `tests/test_diagnose.py`: 회귀 테스트 12개. checkpoint = 독립 짧은 run, 순서·인덱스 독립성, train 전용 표준화, memoryless는 어떤 head로도 정확히 0.5, 동률 처리, 판정 규칙, subprocess에서의 cap 강제를 검사한다.
+- smoke 결과(random probe 1.0, corridor 2–3)는 이전 단계에서 이미 보았고, 이번 진단 설계의 동기가 되었다.
+
+### 실행 기록
+| 커밋 | 명령 | 결과 | CPU (user+sys) |
+|---|---|---|---|
+| 6fbfe7f | timing-only benchmark (scratchpad, 지표 미출력) | 첫 시도는 `ModuleNotFoundError` (PYTHONPATH 누락). 재시도에서 stage-2 epoch 1.58s/10k를 측정 | 0.02s + 3.51s |
+| (커밋 전) | `python3 -m unittest discover -s tests -t .` | OK. **시간 미측정**, 약 5s로 추정 | ~5s |
+| (커밋 전) | `python3 -m unittest tests.test_diagnose -v` | 12/12 OK | 2.03s |
+| (커밋 전) | 전체 테스트 | 75/75 OK | 7.19s |
+| 281020c | `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python3 -m acpr.diagnose --config configs/diag_eval_discriminability.json --out runs/diag_20260926T160006Z_281020c` | **HEADROOM_PRESENT**. OK 9, FAILED/OOM/CAP_EXCEEDED/NOT_RUN 0. wall 1,199.5s, peak RSS 26.9MB | 1,188.6s |
+| – | 결과 요약 스크립트 (읽기 전용) | – | 0.03s |
+
+- 이 단계의 누적 CPU는 최종 테스트 전 기준 약 1,207s로, 상한 1,800s 이하다. 최종 테스트는 §7 끝에 기록한다.
+- run이 진행되는 동안 stop-hook 요구에 따라 **미완성 산출물 스냅샷을 3번 WIP 커밋**했다 (06d22fa, 95908bc, 그다음 커밋). 최종 파일은 run 종료 뒤 커밋이며, 원로그를 덮어쓰지 않고 이어 쓴 것이다.
+
+### 결과 요약 (forced-commit 정확도, seed 1000/1001/1002)
+- informative control: 1.000/1.000/1.000 (full-action 성공 1.0, timeout 0)
+- random recurrent (학습하지 않음): 0.500/0.500/0.500. clue probe test는 0.47/0.53/0.57
+- memoryless: 0.500/0.500/0.500. full-action에서는 seed 1001/1002가 timeout 1.0 (stall)
+- 판정 입력: informative − random = 0.50 (모든 seed), random − memoryless = 0.00
+
+### 해석 범위
+- **평가 경로는 작동한다.** 위험 R-1(random이 이미 천장)은 pilot 설정과 표준화 경로에서는 관찰되지 않았다.
+- 그러나 학습된 encoder가 이 여지를 채운다는 증거는 없다. ACP/MSP checkpoint가 없어 NOT_AVAILABLE이고 재학습하지 않았다.
+- 현재 환경은 주 benchmark 후보로 **유지할 수 있다** (`CURRENT_BENCHMARK_NONDISCRIMINATIVE` 아님). 다만 informative control이 1.0이어서 두 학습 encoder를 서로 비교할 때는 천장 효과가 생길 수 있다.
+- full-action 성공률은 clue를 모르는 두 encoder를 0.5와 0.0으로 갈랐다. 표현이 아니라 commit/stall 행동에 좌우되므로 표현 비교 지표로 쓰면 안 된다.
+- 실행하지 않은 것: asymmetric 변형, 표준화하지 않은 head 입력(pilot 사전등록 경로 그대로), ACP/MSP 참고 평가. 모두 NOT_RUN으로 기록했다.
+- seed 1000–1002의 test split은 이제 개발 자료다.
+
+### 남은 blocker와 결정 사항 (승인 필요)
+1. 후속 비교(작은 규모)를 할지. 질문은 action conditioning 자체가 아니라 같은 경험·비용에서 남는 효과(S1, S2)여야 한다.
+2. pilot stage-2에 train 표준화를 넣을지. 넣지 않으면 이번 판별력 결과가 그 경로에 그대로 적용되지 않는다.
+3. 천장 효과 대책.
+4. 순수 Python 성능 한계: cell당 약 130 CPU-s. 규모를 키우려면 torch 설치 승인이 필요하다.
+

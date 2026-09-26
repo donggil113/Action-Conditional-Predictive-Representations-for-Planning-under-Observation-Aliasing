@@ -1,0 +1,2 @@
+{"out": "runs/diag_20260926T160006Z_281020c", "verdict": "HEADROOM_PRESENT", "OK": 9, "FAILED": 0, "OOM": 0, "CAP_EXCEEDED": 0, "NOT_RUN": 0, "cpu_s": 1188.524336497}
+exit=0

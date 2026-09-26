@@ -16,3 +16,9 @@
 - 수치 fixture 테스트는 구현을 검증할 뿐 수학적 증명이 아니다.
 - 선행연구 표는 AI가 웹에서 확인한 범위에 한정된다. 저자·연도·주장은 사람이 원문으로 다시 확인해야 한다.
 - 패키지 설치, 데이터·가중치 다운로드, 유료 API, GPU는 사용하지 않았다.
+
+## 2단계 (2026-09-26, 평가 판별력 진단)
+- Claude Code가 담당한 것: `acpr/controls.py`, `acpr/diagnose.py`, train/models/evaluate의 작은 hook, `tests/test_diagnose.py`, 진단 config와 보고서.
+- 사람 확인이 필요한 것: 판정 임계값(positive 0.90, negative ±0.10, MIE 0.10)과 설계 선택(train 표준화를 모든 encoder에 적용)이 타당한지.
+- 하위 에이전트는 사용하지 않았다. 설치, 다운로드, 유료 API, GPU도 사용하지 않았다.
+
