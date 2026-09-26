@@ -1,0 +1,78 @@
+{
+  "behavior_forward_prob": 0.8,
+  "branch_prob": 0.25,
+  "decision": {
+    "metric": "forced_commit_accuracy",
+    "negative_control_max_abs_dev_from_half": 0.1,
+    "positive_control_min": 0.9,
+    "r1_mie": 0.1,
+    "required_complete_seeds": 3,
+    "rules": [
+      "INCOMPLETE if any seed lacks an OK cell for any encoder",
+      "EVALUATOR_UNRESOLVED if informative < 0.90 in any seed or |memoryless - 0.5| > 0.10 in any seed",
+      "CURRENT_BENCHMARK_NONDISCRIMINATIVE if (informative - random) < 0.10 in every seed",
+      "HEADROOM_PRESENT if (informative - random) >= 0.10 in every seed",
+      "HEADROOM_MIXED otherwise",
+      "full-action success/return/timeout are reported, not used for the verdict"
+    ]
+  },
+  "dev_budget": 2000,
+  "encoders": [
+    "informative_control",
+    "random_recurrent",
+    "memoryless_control"
+  ],
+  "eval": {
+    "gamma": 0.9,
+    "n_calibration": 200,
+    "n_test": 200,
+    "plan_horizon": 2,
+    "stratify_clue": true
+  },
+  "frozen_before_run": "2026-09-26; seeds, encoders, epoch candidates, selection rule, thresholds and caps fixed before any diagnostic metric was computed",
+  "head": {
+    "batch_episodes": 16,
+    "epoch_candidates": [
+      20,
+      40,
+      80
+    ],
+    "lr": 0.01,
+    "selection_rule": "lowest dev reward_mse among checkpoints of one 80-epoch run; ties -> fewer epochs; test never used"
+  },
+  "head_input": "per-dimension z-score, statistics fitted on train-split history prefixes only",
+  "hidden": 16,
+  "horizon": 3,
+  "maze": {
+    "corridor_max": 6,
+    "corridor_min": 3,
+    "n_distractors": 4,
+    "timeout_slack": 6
+  },
+  "name": "diag_eval_discriminability_v1",
+  "not_run": {
+    "acp_msp_reference_eval": "no ACP/MSP checkpoints exist (runner stored hashes only); retraining not in scope",
+    "asymmetric_variant": "R1 is defined on the symmetric variant; CPU cap",
+    "raw_unstandardized_head_input": "CPU cap; standardized input is applied identically to all encoders"
+  },
+  "question": "Can the current environment plus the frozen-encoder reward head and planner discriminate added value of representation learning (headroom for pilot comparison R1)?",
+  "resource_caps": {
+    "address_space_gib": 3,
+    "cpu_kill_grace_s": 20,
+    "cpu_seconds_hard": 1650,
+    "initial_cell_cost_estimate_s": 150,
+    "reserve_s": 20,
+    "stage_cpu_seconds_total": 1800,
+    "threads": 1,
+    "workers": 1
+  },
+  "run_kind": "diagnostic",
+  "seed_note": "Diagnostic-only seeds, disjoint from pilot seeds 0-9. After this run their splits are development material, not confirmatory data. Three seeds of one variant are not an independent-replication claim.",
+  "seeds": [
+    1000,
+    1001,
+    1002
+  ],
+  "train_budget": 10000,
+  "variant": "symmetric"
+}
