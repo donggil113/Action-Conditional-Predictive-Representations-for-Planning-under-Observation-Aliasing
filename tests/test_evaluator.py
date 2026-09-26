@@ -89,5 +89,64 @@ class TestPlanner(unittest.TestCase):
         self.assertEqual(picks, {ACT_LEFT, ACT_RIGHT})
 
 
+class ClueAndCurrentEncoder:
+    """History-only features: identity of o_0 and whether o_t is the junction."""
+
+    def __init__(self, hidden):
+        self.hidden = hidden
+
+    def encode_values(self, observations, actions, rewards):
+        from acpr.env import OBS_CLUE_A, OBS_JUNCTION
+
+        clue = [1.0, 0.0] if observations[0] == OBS_CLUE_A else [0.0, 1.0]
+        return [clue + [float(o == OBS_JUNCTION)] + [0.0] * (self.hidden - 3) for o in observations]
+
+
+class TestEvaluationPathwayPositiveControl(unittest.TestCase):
+    """If a representation carries the clue, stage 2 + planner must be able to use it.
+
+    Numeric fixture check of the evaluation pathway, not a proof. The 0.9 bar
+    is a validity requirement for a perfectly informative representation; an
+    exploratory run of the same setup reached 1.0 before this test was
+    written, and the bar must not be lowered to make a regression pass.
+    """
+
+    def test_informative_history_features_are_exploitable(self):
+        from acpr.collect import CollectConfig, collect_split
+        from acpr.env import N_ACTIONS
+        from acpr.evaluate import planning_eval
+        from acpr.models import LatentPredictor
+        from acpr.train import TrainConfig, build_windows, train_predictor
+
+        for symmetric in (True, False):
+            maze = MazeConfig(corridor_min=2, corridor_max=3, n_distractors=2, symmetric=symmetric)
+            res = collect_split(maze, CollectConfig(800, 2, 0.25), 0, "train")
+            enc = ClueAndCurrentEncoder(8)
+            head = LatentPredictor("head", 8, maze.n_obs, N_ACTIONS, True, random.Random(3))
+            train_predictor(enc, head, res.episodes, build_windows(res.episodes, 2),
+                            TrainConfig(30, 0.01, 8, 0, obs_weight=0.0), train_encoder=False)
+            ev = planning_eval(enc, head, maze, 0, EvalConfig(0, 40, 2, 0.9))
+            self.assertGreaterEqual(ev["forced_commit_accuracy"], 0.9, symmetric)
+            self.assertGreaterEqual(ev["success_rate"], 0.9, symmetric)
+
+    def test_uninformative_features_give_chance_forced_accuracy(self):
+        from acpr.collect import CollectConfig, collect_split
+        from acpr.env import N_ACTIONS
+        from acpr.evaluate import planning_eval
+        from acpr.models import LatentPredictor
+        from acpr.train import TrainConfig, build_windows, train_predictor
+
+        maze = MazeConfig(corridor_min=2, corridor_max=3, n_distractors=2, symmetric=True)
+        res = collect_split(maze, CollectConfig(800, 2, 0.25), 0, "train")
+        enc = FakeEncoder(lambda o: [0.0] * 8)
+        enc.encode_values = lambda obs, acts, rews: [[0.0] * 8 for _ in obs]
+        head = LatentPredictor("head", 8, maze.n_obs, N_ACTIONS, True, random.Random(3))
+        train_predictor(enc, head, res.episodes, build_windows(res.episodes, 2),
+                        TrainConfig(10, 0.01, 8, 0, obs_weight=0.0), train_encoder=False)
+        ev = planning_eval(enc, head, maze, 0, EvalConfig(0, 40, 2, 0.9))
+        # A clue-blind model cannot beat chance on a clue-balanced test set.
+        self.assertEqual(ev["forced_commit_accuracy"], 0.5)
+
+
 if __name__ == "__main__":
     unittest.main()

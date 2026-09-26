@@ -4,19 +4,65 @@
   "pilot_approved": false,
   "status": "PRE-REGISTERED DRAFT - NOT RUN. Requires explicit approval (set pilot_approved=true in a new commit).",
   "purpose": "Small memory-task pilot for RQ in docs/RESEARCH_PLAN.md. Frozen before any pilot data exists. Primary metric chosen after the smoke run showed that the full-action planner stalls under uncertainty (see STATUS.md).",
-  "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-  "variants": ["symmetric", "asymmetric"],
-  "maze": {"corridor_min": 3, "corridor_max": 6, "n_distractors": 4, "timeout_slack": 6},
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "variants": [
+    "symmetric",
+    "asymmetric"
+  ],
+  "maze": {
+    "corridor_min": 3,
+    "corridor_max": 6,
+    "n_distractors": 4,
+    "timeout_slack": 6
+  },
   "horizon": 3,
   "train_budget": 10000,
   "dev_budget": 2000,
   "branch_prob": 0.25,
   "behavior_forward_prob": 0.8,
-  "model": {"hidden": 16},
-  "stage1": {"epochs": 20, "lr": 0.01, "lr_grid": [0.003, 0.01], "batch_episodes": 16},
-  "stage2": {"epochs": 10, "lr": 0.01, "batch_episodes": 16},
-  "eval": {"n_calibration": 200, "n_test": 200, "plan_horizon": 2, "gamma": 0.9, "stratify_clue": true},
-  "arms": ["acp_branch", "msp_branch", "acp_nobranch", "msp_nobranch", "random_frozen"],
+  "model": {
+    "hidden": 16
+  },
+  "stage1": {
+    "epochs": 20,
+    "lr": 0.01,
+    "lr_grid": [
+      0.003,
+      0.01
+    ],
+    "batch_episodes": 16
+  },
+  "stage2": {
+    "epochs": 20,
+    "lr": 0.01,
+    "batch_episodes": 16,
+    "epochs_note": "Raised from 10 to 20 before any pilot data: positive-control check showed the full-action planner procrastinates with an under-trained head (see STATUS.md)."
+  },
+  "eval": {
+    "n_calibration": 200,
+    "n_test": 200,
+    "plan_horizon": 2,
+    "gamma": 0.9,
+    "stratify_clue": true
+  },
+  "arms": [
+    "acp_branch",
+    "msp_branch",
+    "acp_nobranch",
+    "msp_nobranch",
+    "random_frozen"
+  ],
   "resource_caps": {
     "max_wall_s": 10800,
     "max_peak_rss_mb": 2048,
@@ -25,18 +71,53 @@
   },
   "analysis": {
     "primary_metric": "planning.forced_commit_accuracy",
-    "secondary_metrics": ["planning.success_rate", "planning.timeout_rate", "probe.test_accuracy", "stage2_dev.reward_mse"],
-    "mie": 0.10,
+    "secondary_metrics": [
+      "planning.success_rate",
+      "planning.timeout_rate",
+      "probe.test_accuracy",
+      "stage2_dev.reward_mse"
+    ],
+    "mie": 0.1,
     "alpha": 0.05,
     "required_seeds": 10,
     "bootstrap_resamples": 10000,
     "bootstrap_seed": 12345,
     "comparisons": [
-      {"name": "H1_acp_vs_msp_branch_symmetric", "variant": "symmetric", "arm_a": "acp_branch", "arm_b": "msp_branch", "role": "primary"},
-      {"name": "S1_acp_branch_vs_acp_nobranch_symmetric", "variant": "symmetric", "arm_a": "acp_branch", "arm_b": "acp_nobranch", "role": "secondary: branching value at equal actual transition spend"},
-      {"name": "S2_acp_vs_msp_nobranch_symmetric", "variant": "symmetric", "arm_a": "acp_nobranch", "arm_b": "msp_nobranch", "role": "secondary: advantage without simulator restores"},
-      {"name": "C1_acp_vs_msp_branch_asymmetric", "variant": "asymmetric", "arm_a": "acp_branch", "arm_b": "msp_branch", "role": "mechanism control"},
-      {"name": "R1_acp_branch_vs_random_frozen_symmetric", "variant": "symmetric", "arm_a": "acp_branch", "arm_b": "random_frozen", "role": "reference"}
+      {
+        "name": "H1_acp_vs_msp_branch_symmetric",
+        "variant": "symmetric",
+        "arm_a": "acp_branch",
+        "arm_b": "msp_branch",
+        "role": "primary"
+      },
+      {
+        "name": "S1_acp_branch_vs_acp_nobranch_symmetric",
+        "variant": "symmetric",
+        "arm_a": "acp_branch",
+        "arm_b": "acp_nobranch",
+        "role": "secondary: branching value at equal actual transition spend"
+      },
+      {
+        "name": "S2_acp_vs_msp_nobranch_symmetric",
+        "variant": "symmetric",
+        "arm_a": "acp_nobranch",
+        "arm_b": "msp_nobranch",
+        "role": "secondary: advantage without simulator restores"
+      },
+      {
+        "name": "C1_acp_vs_msp_branch_asymmetric",
+        "variant": "asymmetric",
+        "arm_a": "acp_branch",
+        "arm_b": "msp_branch",
+        "role": "mechanism control"
+      },
+      {
+        "name": "R1_acp_branch_vs_random_frozen_symmetric",
+        "variant": "symmetric",
+        "arm_a": "acp_branch",
+        "arm_b": "random_frozen",
+        "role": "reference"
+      }
     ]
   }
 }
