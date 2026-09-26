@@ -133,6 +133,7 @@ def planning_eval(
     ledger = _eval_ledger(maze_cfg, cfg.n_test, f"{split}:planning")
     sim = MeteredSimulator(AliasedTMaze(maze_cfg), ledger)
     successes, returns, forced_correct = [], [], []
+    forced_expected, forced_ties = [], 0
     junction_histories, junction_clues = [], []
     first_decisions = {name: 0 for name in ("FORWARD", "LEFT", "RIGHT")}
     timeouts = 0
@@ -152,6 +153,13 @@ def planning_eval(
                 first_actions=(ACT_LEFT, ACT_RIGHT), tie_tol=cfg.tie_tol,
             )
             forced_correct.append(float(forced == gt["optimal_arm"]))
+            # Diagnostic only: expected credit under uniform tie-breaking, so an
+            # exact LEFT/RIGHT tie scores 0.5 independent of the tie RNG.
+            scored = sequence_scores(encoder, head, history, cfg.plan_horizon, cfg.gamma, (ACT_LEFT, ACT_RIGHT))
+            best = max(sc for _, sc in scored)
+            cands = {seq[0] for seq, sc in scored if sc >= best - cfg.tie_tol}
+            forced_ties += int(len(cands) > 1)
+            forced_expected.append((gt["optimal_arm"] in cands) / len(cands))
             first = True
             while not done:
                 a = plan_action(encoder, head, history, cfg.plan_horizon, cfg.gamma, rng, tie_tol=cfg.tie_tol)
@@ -171,6 +179,8 @@ def planning_eval(
         "mean_return": sum(returns) / n,
         "timeout_rate": timeouts / n,
         "forced_commit_accuracy": (sum(forced_correct) / len(forced_correct)) if forced_correct else None,
+        "forced_commit_expected_accuracy": (sum(forced_expected) / len(forced_expected)) if forced_expected else None,
+        "forced_commit_ties": forced_ties,
         "first_planner_decisions": first_decisions,
         "n_episodes": len(successes),
         "ledger": ledger.summary(),

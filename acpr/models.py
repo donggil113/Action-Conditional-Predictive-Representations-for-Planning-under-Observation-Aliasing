@@ -121,6 +121,14 @@ class LatentPredictor:
         return [r.value[0] for _, r in self.rollout(ad.const(z_values), actions)]
 
 
+def copy_predictor(src: LatentPredictor) -> LatentPredictor:
+    """Independent copy of a predictor's weights (for epoch checkpoints)."""
+    dst = LatentPredictor(src.name, src.hidden, src.n_obs, src.n_act, src.action_conditional, random.Random(0))
+    for d, s in zip(dst.params(), src.params()):
+        d.w = list(s.w)
+    return dst
+
+
 def param_count(params: Sequence[ad.Param]) -> int:
     return sum(p.size for p in params)
 

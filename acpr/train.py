@@ -142,8 +142,14 @@ def train_predictor(
     train_encoder: bool,
     log: Optional[Callable[[dict], None]] = None,
     tag: str = "",
+    on_epoch_end: Optional[Callable[[int, LatentPredictor], None]] = None,
 ) -> dict:
-    """Stage 1 (train_encoder=True) or frozen-encoder stage 2 (False)."""
+    """Stage 1 (train_encoder=True) or frozen-encoder stage 2 (False).
+
+    `on_epoch_end(n_epochs_done, predictor)` lets callers checkpoint without
+    restarting: with a constant learning rate, the checkpoint after n epochs
+    equals an independent n-epoch run with the same seed.
+    """
     params = predictor.params() + (encoder.params() if train_encoder else [])
     opt = ad.Adam(params, cfg.lr, clip_norm=cfg.clip_norm)
     rng = random.Random(cfg.seed)
@@ -187,6 +193,8 @@ def train_predictor(
         history.append(rec)
         if log:
             log(rec)
+        if on_epoch_end is not None:
+            on_epoch_end(epoch + 1, predictor)
     return {"epochs": history, "wall_s": time.perf_counter() - t0}
 
 

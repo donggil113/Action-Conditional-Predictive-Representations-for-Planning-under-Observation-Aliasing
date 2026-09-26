@@ -1,0 +1,55 @@
+{
+  "name": "diag_eval_discriminability_v1",
+  "run_kind": "diagnostic",
+  "question": "Can the current environment plus the frozen-encoder reward head and planner discriminate added value of representation learning (headroom for pilot comparison R1)?",
+  "frozen_before_run": "2026-09-26; seeds, encoders, epoch candidates, selection rule, thresholds and caps fixed before any diagnostic metric was computed",
+  "seeds": [1000, 1001, 1002],
+  "seed_note": "Diagnostic-only seeds, disjoint from pilot seeds 0-9. After this run their splits are development material, not confirmatory data. Three seeds of one variant are not an independent-replication claim.",
+  "variant": "symmetric",
+  "not_run": {
+    "asymmetric_variant": "R1 is defined on the symmetric variant; CPU cap",
+    "raw_unstandardized_head_input": "CPU cap; standardized input is applied identically to all encoders",
+    "acp_msp_reference_eval": "no ACP/MSP checkpoints exist (runner stored hashes only); retraining not in scope"
+  },
+  "maze": {"corridor_min": 3, "corridor_max": 6, "n_distractors": 4, "timeout_slack": 6},
+  "horizon": 3,
+  "train_budget": 10000,
+  "dev_budget": 2000,
+  "branch_prob": 0.25,
+  "behavior_forward_prob": 0.8,
+  "hidden": 16,
+  "encoders": ["informative_control", "random_recurrent", "memoryless_control"],
+  "head_input": "per-dimension z-score, statistics fitted on train-split history prefixes only",
+  "head": {
+    "lr": 0.01,
+    "batch_episodes": 16,
+    "epoch_candidates": [20, 40, 80],
+    "selection_rule": "lowest dev reward_mse among checkpoints of one 80-epoch run; ties -> fewer epochs; test never used"
+  },
+  "eval": {"n_calibration": 200, "n_test": 200, "plan_horizon": 2, "gamma": 0.9, "stratify_clue": true},
+  "decision": {
+    "metric": "forced_commit_accuracy",
+    "positive_control_min": 0.90,
+    "negative_control_max_abs_dev_from_half": 0.10,
+    "r1_mie": 0.10,
+    "required_complete_seeds": 3,
+    "rules": [
+      "INCOMPLETE if any seed lacks an OK cell for any encoder",
+      "EVALUATOR_UNRESOLVED if informative < 0.90 in any seed or |memoryless - 0.5| > 0.10 in any seed",
+      "CURRENT_BENCHMARK_NONDISCRIMINATIVE if (informative - random) < 0.10 in every seed",
+      "HEADROOM_PRESENT if (informative - random) >= 0.10 in every seed",
+      "HEADROOM_MIXED otherwise",
+      "full-action success/return/timeout are reported, not used for the verdict"
+    ]
+  },
+  "resource_caps": {
+    "stage_cpu_seconds_total": 1800,
+    "cpu_seconds_hard": 1650,
+    "cpu_kill_grace_s": 20,
+    "reserve_s": 20,
+    "initial_cell_cost_estimate_s": 150,
+    "address_space_gib": 3,
+    "workers": 1,
+    "threads": 1
+  }
+}
