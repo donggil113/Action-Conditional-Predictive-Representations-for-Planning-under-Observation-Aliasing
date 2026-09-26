@@ -7,6 +7,8 @@ Arms (all share encoder/predictor/head initialisations for a given seed):
   msp_branch    action-marginal multi-step objective, the SAME branched data
   acp_nobranch  action-conditional objective, non-branched data, SAME total
                 transition budget (secondary: is branching worth its cost?)
+  msp_nobranch  action-marginal objective, the same non-branched data
+                (does any ACP advantage survive without simulator restores?)
   random_frozen untrained encoder (reference lower bound, not a competitor)
 
 Every arm is evaluated with the same frozen-encoder protocol: a fresh
@@ -56,6 +58,7 @@ ARMS = {
     "acp_branch": {"data": "branch", "stage1": True, "action_conditional": True},
     "msp_branch": {"data": "branch", "stage1": True, "action_conditional": False},
     "acp_nobranch": {"data": "nobranch", "stage1": True, "action_conditional": True},
+    "msp_nobranch": {"data": "nobranch", "stage1": True, "action_conditional": False},
     "random_frozen": {"data": "branch", "stage1": False, "action_conditional": True},
 }
 
@@ -76,15 +79,20 @@ def _junction_prefix(observations):
     return tuple(observations)
 
 
-def run_arm(arm, spec, seed, maze_cfg, cfg, data, dev, probe_calib, log):
-    n_obs, hidden = maze_cfg.n_obs, cfg["model"]["hidden"]
-    episodes, windows = data
-    dev_episodes, dev_windows = dev
+def _fresh_models(seed, spec, n_obs, hidden):
     encoder = RecurrentEncoder(n_obs, N_ACTIONS, hidden, random.Random(derive_seed("enc-init", seed)))
     predictor = LatentPredictor(
         "pred", hidden, n_obs, N_ACTIONS, spec["action_conditional"],
         random.Random(derive_seed("pred-init", seed)),
     )
+    return encoder, predictor
+
+
+def run_arm(arm, spec, seed, maze_cfg, cfg, data, dev, probe_calib, log):
+    n_obs, hidden = maze_cfg.n_obs, cfg["model"]["hidden"]
+    episodes, windows = data
+    dev_episodes, dev_windows = dev
+    encoder, predictor = _fresh_models(seed, spec, n_obs, hidden)
     out = {
         "arm": arm,
         "spec": spec,
@@ -94,10 +102,23 @@ def run_arm(arm, spec, seed, maze_cfg, cfg, data, dev, probe_calib, log):
     }
     mac0 = ad.COUNTERS["mac"]
     if spec["stage1"]:
+        # Each arm selects its learning rate from the same fixed grid by its OWN
+        # stage-1 dev objective; test data is never used for selection.
         s1 = cfg["stage1"]
-        tc = TrainConfig(s1["epochs"], s1["lr"], s1["batch_episodes"], derive_seed("s1-order", seed))
-        out["stage1"] = train_predictor(encoder, predictor, episodes, windows, tc, True, log, f"{arm}:stage1")
-        out["stage1_dev"] = evaluate_predictor(encoder, predictor, dev_episodes, dev_windows)
+        candidates = []
+        for lr in s1.get("lr_grid", [s1["lr"]]):
+            enc_c, pred_c = _fresh_models(seed, spec, n_obs, hidden)
+            tc = TrainConfig(s1["epochs"], lr, s1["batch_episodes"], derive_seed("s1-order", seed))
+            hist = train_predictor(enc_c, pred_c, episodes, windows, tc, True, log, f"{arm}:stage1:lr={lr}")
+            dev_metrics = evaluate_predictor(enc_c, pred_c, dev_episodes, dev_windows)
+            objective = tc.obs_weight * dev_metrics["obs_nll"] + tc.reward_weight * dev_metrics["reward_mse"]
+            candidates.append((objective, lr, enc_c, pred_c, hist, dev_metrics))
+        best = min(candidates, key=lambda c: c[0])  # ties keep grid order
+        _, lr, encoder, predictor, out["stage1"], out["stage1_dev"] = best
+        out["stage1_selected_lr"] = lr
+        out["stage1_lr_candidates"] = [
+            {"lr": c[1], "dev_objective": c[0], "dev": c[5]} for c in candidates
+        ]
     out["stage1_mac"] = ad.COUNTERS["mac"] - mac0
 
     # Stage 2: identical fresh action-conditional reward head on the frozen encoder.
@@ -124,9 +145,16 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--seeds", help="comma-separated subset of the config seeds (for parallel processes)")
     args = ap.parse_args(argv)
 
     cfg = json.loads(Path(args.config).read_text())
+    seeds = cfg["seeds"]
+    if args.seeds:
+        seeds = [int(x) for x in args.seeds.split(",")]
+        if not set(seeds) <= set(cfg["seeds"]):
+            print("REFUSED: --seeds must be a subset of the config seeds", file=sys.stderr)
+            return 2
     if cfg.get("run_kind") != "smoke" and not cfg.get("pilot_approved", False):
         print(f"REFUSED: run_kind={cfg.get('run_kind')!r} requires pilot_approved=true", file=sys.stderr)
         return 2
@@ -144,13 +172,14 @@ def main(argv=None) -> int:
         "config_sha256": canonical_hash(cfg),
         "environment": environment_info(),
         "resource_caps": caps,
+        "seeds_run": seeds,
         "data": {},
     }
     results = []
     cap_hit = None
     log({"event": "start", "config_sha256": manifest["config_sha256"], "git": manifest["git"]["commit"]})
 
-    for seed in cfg["seeds"]:
+    for seed in seeds:
         for variant in cfg["variants"]:
             maze_cfg = MazeConfig(symmetric=(variant == "symmetric"), **cfg["maze"])
             key = f"seed{seed}/{variant}"
@@ -166,8 +195,9 @@ def main(argv=None) -> int:
                 seed, "dev",
             )
             dev = (dev_res.episodes, build_windows(dev_res.episodes, cfg["horizon"]))
-            calib_h, calib_c, calib_ledger = collect_probe_histories(maze_cfg, seed, "calibration", cfg["eval"]["n_calibration"])
-            test_prefix_h, _, _ = collect_probe_histories(maze_cfg, seed, "test", cfg["eval"]["n_test"])
+            strat = cfg["eval"].get("stratify_clue", True)
+            calib_h, calib_c, calib_ledger = collect_probe_histories(maze_cfg, seed, "calibration", cfg["eval"]["n_calibration"], strat)
+            test_prefix_h, _, _ = collect_probe_histories(maze_cfg, seed, "test", cfg["eval"]["n_test"], strat)
             overlap = content_overlap(
                 (_junction_prefix(e.observations) for e in datasets["branch"][0]),
                 (h.observations for h in test_prefix_h),

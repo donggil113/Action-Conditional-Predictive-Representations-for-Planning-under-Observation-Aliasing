@@ -27,10 +27,10 @@ TINY = {
     "branch_prob": 0.3,
     "behavior_forward_prob": 0.8,
     "model": {"hidden": 4},
-    "stage1": {"epochs": 1, "lr": 0.01, "batch_episodes": 4},
+    "stage1": {"epochs": 1, "lr": 0.01, "lr_grid": [0.003, 0.01], "batch_episodes": 4},
     "stage2": {"epochs": 1, "lr": 0.01, "batch_episodes": 4},
     "eval": {"n_calibration": 8, "n_test": 8, "plan_horizon": 2, "gamma": 0.9},
-    "arms": ["acp_branch", "msp_branch", "acp_nobranch", "random_frozen"],
+    "arms": ["acp_branch", "msp_branch", "acp_nobranch", "msp_nobranch", "random_frozen"],
     "resource_caps": {"max_wall_s": 300, "max_peak_rss_mb": 4096},
 }
 
@@ -54,7 +54,7 @@ class TestRunner(unittest.TestCase):
                 self.assertTrue((out / name).exists(), name)
             metrics = json.loads((out / "metrics.json").read_text())
             manifest = json.loads((out / "manifest.json").read_text())
-            self.assertEqual([m["status"] for m in metrics], ["OK"] * 4)
+            self.assertEqual([m["status"] for m in metrics], ["OK"] * 5)
             self.assertEqual(manifest["science_status"], "SCIENCE_NOT_EVALUATED")
             for key in ("source_sha256", "config_sha256", "git", "environment", "peak_rss_mb", "time", "total_mac"):
                 self.assertIn(key, manifest)
@@ -63,6 +63,7 @@ class TestRunner(unittest.TestCase):
             spent = {m["train_transitions_spent"] for m in metrics}
             self.assertEqual(spent, {TINY["train_budget"]})
             self.assertEqual(by_arm["acp_nobranch"]["train_restores_used"], 0)
+            self.assertEqual(by_arm["msp_nobranch"]["train_restores_used"], 0)
             self.assertGreater(by_arm["acp_branch"]["train_restores_used"], 0)
             # Same capacity and same initial weights across ACP/MSP.
             self.assertEqual(by_arm["acp_branch"]["stage1_predictor_params"], by_arm["msp_branch"]["stage1_predictor_params"])
@@ -70,6 +71,12 @@ class TestRunner(unittest.TestCase):
             for m in metrics:
                 self.assertEqual(m["planning"]["ledger"]["restores"], 0)
             self.assertNotIn("stage1", by_arm["random_frozen"])
+            # Learning rate chosen from the fixed grid by each arm's own dev objective.
+            for arm in ("acp_branch", "msp_branch", "acp_nobranch", "msp_nobranch"):
+                cands = by_arm[arm]["stage1_lr_candidates"]
+                self.assertEqual([c["lr"] for c in cands], [0.003, 0.01])
+                best = min(cands, key=lambda c: c["dev_objective"])
+                self.assertEqual(by_arm[arm]["stage1_selected_lr"], best["lr"])
 
     def test_non_smoke_config_refused_without_approval(self):
         cfg = dict(TINY, run_kind="pilot", pilot_approved=False)
@@ -79,6 +86,16 @@ class TestRunner(unittest.TestCase):
             self.assertEqual(code, 2)
             self.assertIn("REFUSED", err)
             self.assertFalse(out.exists())
+
+    def test_seed_subset_must_come_from_config(self):
+        with tempfile.TemporaryDirectory() as d:
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+                json.dump(TINY, f)
+            buf = io.StringIO()
+            with redirect_stdout(io.StringIO()), redirect_stderr(buf):
+                code = run.main(["--config", f.name, "--out", str(Path(d) / "r"), "--seeds", "5"])
+            self.assertEqual(code, 2)
+            self.assertIn("REFUSED", buf.getvalue())
 
     def test_resource_cap_marks_not_run(self):
         cfg = dict(TINY, resource_caps={"max_wall_s": -1, "max_peak_rss_mb": 4096})

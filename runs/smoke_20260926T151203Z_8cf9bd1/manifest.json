@@ -1,0 +1,227 @@
+{
+  "command": "python3 -m acpr.run --config configs/smoke.json --out runs/smoke_20260926T151203Z_8cf9bd1",
+  "config_sha256": "75572f984cb486b71519fdd1b8b3d9eb65764d39fca6de53d0f8aabd3f4f5bc6",
+  "data": {
+    "seed0/asymmetric": {
+      "calibration_probe_ledger": {
+        "cap": 330,
+        "label": "calibration:probe",
+        "resets": 30,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 104,
+          "main": 0
+        },
+        "transitions_total": 104
+      },
+      "dev": {
+        "ledger": {
+          "cap": 200,
+          "label": "dev:collect",
+          "resets": 15,
+          "restore_allowed": true,
+          "restores": 84,
+          "snapshots": 21,
+          "transitions_by_kind": {
+            "branch": 120,
+            "eval": 0,
+            "main": 80
+          },
+          "transitions_total": 200
+        },
+        "sha256": "3fa524986485751fa738c21fcacb439e0cdd363ed7c9ba769de91462b860b1a6",
+        "stats": {
+          "branch_sets": 21,
+          "branch_sets_skipped_for_budget": 2,
+          "budget_truncated_episodes": 1,
+          "episodes": 15,
+          "terminated_episodes": 14,
+          "timeout_episodes": 0
+        }
+      },
+      "test_junction_prefix_obs_overlap_with_train": 0.6333333333333333,
+      "train": {
+        "branch": {
+          "ledger": {
+            "cap": 800,
+            "label": "train:collect",
+            "resets": 62,
+            "restore_allowed": true,
+            "restores": 312,
+            "snapshots": 78,
+            "transitions_by_kind": {
+              "branch": 435,
+              "eval": 0,
+              "main": 365
+            },
+            "transitions_total": 800
+          },
+          "sha256": "aeafef056d087bd67f389cb682c7e201104f342c6060634d987366ec42036cde",
+          "stats": {
+            "branch_sets": 78,
+            "branch_sets_skipped_for_budget": 0,
+            "budget_truncated_episodes": 1,
+            "episodes": 62,
+            "terminated_episodes": 61,
+            "timeout_episodes": 0
+          }
+        },
+        "nobranch": {
+          "ledger": {
+            "cap": 800,
+            "label": "train:collect",
+            "resets": 132,
+            "restore_allowed": true,
+            "restores": 0,
+            "snapshots": 0,
+            "transitions_by_kind": {
+              "branch": 0,
+              "eval": 0,
+              "main": 800
+            },
+            "transitions_total": 800
+          },
+          "sha256": "3f3d52a5efb44d825f035da15b414d2a5789d5eb2a9c9bc478222c8935ca6932",
+          "stats": {
+            "branch_sets": 0,
+            "branch_sets_skipped_for_budget": 0,
+            "budget_truncated_episodes": 0,
+            "episodes": 132,
+            "terminated_episodes": 132,
+            "timeout_episodes": 0
+          }
+        }
+      }
+    },
+    "seed0/symmetric": {
+      "calibration_probe_ledger": {
+        "cap": 330,
+        "label": "calibration:probe",
+        "resets": 30,
+        "restore_allowed": false,
+        "restores": 0,
+        "snapshots": 0,
+        "transitions_by_kind": {
+          "branch": 0,
+          "eval": 104,
+          "main": 0
+        },
+        "transitions_total": 104
+      },
+      "dev": {
+        "ledger": {
+          "cap": 200,
+          "label": "dev:collect",
+          "resets": 15,
+          "restore_allowed": true,
+          "restores": 84,
+          "snapshots": 21,
+          "transitions_by_kind": {
+            "branch": 120,
+            "eval": 0,
+            "main": 80
+          },
+          "transitions_total": 200
+        },
+        "sha256": "0986ce994ff032c29d9302c8fec649e904c56f811ea769f6a8e4a57073397d4e",
+        "stats": {
+          "branch_sets": 21,
+          "branch_sets_skipped_for_budget": 2,
+          "budget_truncated_episodes": 1,
+          "episodes": 15,
+          "terminated_episodes": 14,
+          "timeout_episodes": 0
+        }
+      },
+      "test_junction_prefix_obs_overlap_with_train": 0.6333333333333333,
+      "train": {
+        "branch": {
+          "ledger": {
+            "cap": 800,
+            "label": "train:collect",
+            "resets": 62,
+            "restore_allowed": true,
+            "restores": 312,
+            "snapshots": 78,
+            "transitions_by_kind": {
+              "branch": 435,
+              "eval": 0,
+              "main": 365
+            },
+            "transitions_total": 800
+          },
+          "sha256": "3616f1fe02566a0936c658dc1894abfa0aeae88551b05876608488427765c755",
+          "stats": {
+            "branch_sets": 78,
+            "branch_sets_skipped_for_budget": 0,
+            "budget_truncated_episodes": 1,
+            "episodes": 62,
+            "terminated_episodes": 61,
+            "timeout_episodes": 0
+          }
+        },
+        "nobranch": {
+          "ledger": {
+            "cap": 800,
+            "label": "train:collect",
+            "resets": 132,
+            "restore_allowed": true,
+            "restores": 0,
+            "snapshots": 0,
+            "transitions_by_kind": {
+              "branch": 0,
+              "eval": 0,
+              "main": 800
+            },
+            "transitions_total": 800
+          },
+          "sha256": "f9f8a650d13461175e1cf8947276af601ffb11a2f1a530f47ea1405a3f6a88dd",
+          "stats": {
+            "branch_sets": 0,
+            "branch_sets_skipped_for_budget": 0,
+            "budget_truncated_episodes": 0,
+            "episodes": 132,
+            "terminated_episodes": 132,
+            "timeout_episodes": 0
+          }
+        }
+      }
+    }
+  },
+  "environment": {
+    "cpu_count": 4,
+    "gpu_used": false,
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+    "third_party_packages_used": []
+  },
+  "git": {
+    "commit": "8cf9bd149f4714db24142e06f425b14b0d045e37",
+    "dirty_paths": [],
+    "tracked_files_dirty": false
+  },
+  "peak_rss_mb": 20.171875,
+  "resource_caps": {
+    "max_peak_rss_mb": 1024,
+    "max_wall_s": 900
+  },
+  "run_kind": "smoke",
+  "science_status": "SCIENCE_NOT_EVALUATED",
+  "software_status": "TECHNICAL_RUN_COMPLETE",
+  "source_sha256": "d2a383a62825cf3045d282b5811643cdba59e377cbf0a2baceba789a85b43921",
+  "status_counts": {
+    "FAILED": 0,
+    "NOT_RUN": 0,
+    "OK": 8
+  },
+  "time": {
+    "process_cpu_s": 4.571780628,
+    "wall_s": 4.6264351959999885
+  },
+  "total_mac": 31113744
+}

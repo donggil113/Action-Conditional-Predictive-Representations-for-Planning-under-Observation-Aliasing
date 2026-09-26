@@ -1,0 +1,2 @@
+{"out": "runs/smoke_20260926T151203Z_8cf9bd1", "OK": 8, "FAILED": 0, "NOT_RUN": 0, "wall_s": 4.6264351959999885}
+exit=0

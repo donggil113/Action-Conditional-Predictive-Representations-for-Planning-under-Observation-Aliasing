@@ -3,18 +3,57 @@
   "run_kind": "smoke",
   "pilot_approved": false,
   "purpose": "End-to-end technical check of collection, accounting, both objectives, frozen-encoder head, planner and probe. Numbers are NOT scientific results.",
-  "seeds": [0],
-  "variants": ["symmetric", "asymmetric"],
-  "maze": {"corridor_min": 2, "corridor_max": 3, "n_distractors": 2, "timeout_slack": 6},
+  "seeds": [
+    0
+  ],
+  "variants": [
+    "symmetric",
+    "asymmetric"
+  ],
+  "maze": {
+    "corridor_min": 2,
+    "corridor_max": 3,
+    "n_distractors": 2,
+    "timeout_slack": 6
+  },
   "horizon": 2,
   "train_budget": 800,
   "dev_budget": 200,
   "branch_prob": 0.25,
   "behavior_forward_prob": 0.8,
-  "model": {"hidden": 8},
-  "stage1": {"epochs": 3, "lr": 0.01, "batch_episodes": 8},
-  "stage2": {"epochs": 3, "lr": 0.01, "batch_episodes": 8},
-  "eval": {"n_calibration": 30, "n_test": 30, "plan_horizon": 2, "gamma": 0.9},
-  "arms": ["acp_branch", "msp_branch", "acp_nobranch", "random_frozen"],
-  "resource_caps": {"max_wall_s": 900, "max_peak_rss_mb": 1024}
+  "model": {
+    "hidden": 8
+  },
+  "stage1": {
+    "epochs": 3,
+    "lr": 0.01,
+    "batch_episodes": 8,
+    "lr_grid": [
+      0.003,
+      0.01
+    ]
+  },
+  "stage2": {
+    "epochs": 3,
+    "lr": 0.01,
+    "batch_episodes": 8
+  },
+  "eval": {
+    "n_calibration": 30,
+    "n_test": 30,
+    "plan_horizon": 2,
+    "gamma": 0.9,
+    "stratify_clue": true
+  },
+  "arms": [
+    "acp_branch",
+    "msp_branch",
+    "acp_nobranch",
+    "msp_nobranch",
+    "random_frozen"
+  ],
+  "resource_caps": {
+    "max_wall_s": 900,
+    "max_peak_rss_mb": 1024
+  }
 }

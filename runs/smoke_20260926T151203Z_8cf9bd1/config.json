@@ -1,0 +1,53 @@
+{
+  "arms": [
+    "acp_branch",
+    "msp_branch",
+    "acp_nobranch",
+    "random_frozen"
+  ],
+  "behavior_forward_prob": 0.8,
+  "branch_prob": 0.25,
+  "dev_budget": 200,
+  "eval": {
+    "gamma": 0.9,
+    "n_calibration": 30,
+    "n_test": 30,
+    "plan_horizon": 2
+  },
+  "horizon": 2,
+  "maze": {
+    "corridor_max": 3,
+    "corridor_min": 2,
+    "n_distractors": 2,
+    "timeout_slack": 6
+  },
+  "model": {
+    "hidden": 8
+  },
+  "name": "smoke",
+  "pilot_approved": false,
+  "purpose": "End-to-end technical check of collection, accounting, both objectives, frozen-encoder head, planner and probe. Numbers are NOT scientific results.",
+  "resource_caps": {
+    "max_peak_rss_mb": 1024,
+    "max_wall_s": 900
+  },
+  "run_kind": "smoke",
+  "seeds": [
+    0
+  ],
+  "stage1": {
+    "batch_episodes": 8,
+    "epochs": 3,
+    "lr": 0.01
+  },
+  "stage2": {
+    "batch_episodes": 8,
+    "epochs": 3,
+    "lr": 0.01
+  },
+  "train_budget": 800,
+  "variants": [
+    "symmetric",
+    "asymmetric"
+  ]
+}

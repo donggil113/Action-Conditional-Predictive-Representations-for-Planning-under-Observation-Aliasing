@@ -10,6 +10,12 @@ Protocol (identical for every arm):
    arms). No simulator snapshot/restore is allowed: the evaluation ledger
    forbids it, so the planner cannot perform hidden rollouts.
 3. Success = the episode terminated in the optimal arm. Timeout = failure.
+   Forced-commit accuracy = whether the same planner, restricted to
+   first actions {LEFT, RIGHT}, prefers the optimal arm at the first
+   junction arrival (computed from the model only; no extra env steps).
+
+Evaluation episodes are clue-stratified by the evaluator (clue = index % 2)
+so that every constant policy scores exactly 0.5; the actor never sees this.
 
 Ground-truth labels (clue, optimal arm) are read by the evaluator after the
 fact and never passed to the planner. The clue probe is an evaluator-only
@@ -49,6 +55,11 @@ class EvalConfig:
     probe_lr: float = 0.5
     probe_l2: float = 1e-2
     tie_tol: float = 1e-9
+    stratify_clue: bool = True
+
+
+def _eval_clue(stratify: bool, index: int):
+    return index % 2 if stratify else None
 
 
 def _eval_ledger(maze_cfg: MazeConfig, n_episodes: int, label: str) -> TransitionLedger:
@@ -95,14 +106,14 @@ def plan_action(
 
 
 def collect_probe_histories(
-    maze_cfg: MazeConfig, run_seed: int, split: str, n_episodes: int
+    maze_cfg: MazeConfig, run_seed: int, split: str, n_episodes: int, stratify_clue: bool = True
 ) -> Tuple[List[History], List[int], dict]:
     """Histories at the first junction arrival (scripted prefix) + evaluator clue labels."""
     ledger = _eval_ledger(maze_cfg, n_episodes, f"{split}:probe")
     sim = MeteredSimulator(AliasedTMaze(maze_cfg), ledger)
     histories, clues = [], []
     for i in range(n_episodes):
-        history = History.start(sim.reset(episode_seed(run_seed, split, i)))
+        history = History.start(sim.reset(episode_seed(run_seed, split, i), clue=_eval_clue(stratify_clue, i)))
         clue = sim.evaluator_ground_truth()["clue"]
         history, done = _run_prefix(sim, history)
         if not done:
@@ -129,7 +140,7 @@ def planning_eval(
         # Tie-breaking RNGs depend only on (run seed, episode): shared across arms.
         rng = random.Random(derive_seed("plan-ties", run_seed, split, i))
         forced_rng = random.Random(derive_seed("forced-ties", run_seed, split, i))
-        history = History.start(sim.reset(episode_seed(run_seed, split, i)))
+        history = History.start(sim.reset(episode_seed(run_seed, split, i), clue=_eval_clue(cfg.stratify_clue, i)))
         gt = sim.evaluator_ground_truth()  # evaluator-side only
         history, done = _run_prefix(sim, history)
         terminated = False
@@ -176,6 +187,16 @@ def _sigmoid(x: float) -> float:
     return e / (1.0 + e)
 
 
+def standardizer(features: Sequence[Sequence[float]]):
+    """Per-dimension z-scoring fitted on calibration features only."""
+    d = len(features[0])
+    n = len(features)
+    mean = [sum(x[k] for x in features) / n for k in range(d)]
+    std = [math.sqrt(sum((x[k] - mean[k]) ** 2 for x in features) / n) for k in range(d)]
+    std = [s if s > 1e-12 else 1.0 for s in std]
+    return lambda xs: [[(x[k] - mean[k]) / std[k] for k in range(d)] for x in xs]
+
+
 def fit_probe(features: Sequence[Sequence[float]], labels: Sequence[int], cfg: EvalConfig):
     d = len(features[0])
     w = [0.0] * d
@@ -217,11 +238,13 @@ def clue_probe(
 
     if not calib_histories or len(set(calib_clues)) < 2:
         return {"status": "NOT_RUN", "reason": "calibration set lacks both clue classes"}
-    w, b = fit_probe(feats(calib_histories), calib_clues, cfg)
+    calib = feats(calib_histories)
+    scale = standardizer(calib)
+    w, b = fit_probe(scale(calib), calib_clues, cfg)
     return {
         "status": "OK",
-        "calibration_accuracy": probe_accuracy(w, b, feats(calib_histories), calib_clues),
-        "test_accuracy": probe_accuracy(w, b, feats(test_histories), test_clues),
+        "calibration_accuracy": probe_accuracy(w, b, scale(calib), calib_clues),
+        "test_accuracy": probe_accuracy(w, b, scale(feats(test_histories)), test_clues),
         "n_calibration": len(calib_histories),
         "n_test": len(test_histories),
     }
