@@ -11,7 +11,10 @@ from __future__ import annotations
 import hashlib
 from typing import Iterable, Sequence
 
-SPLITS = ("train", "dev", "calibration", "test")
+# head_train / head_dev: restore-free readout pool shared by all arms of the
+# 2x2 study (added later; existing splits' seeds are unchanged because the
+# split name is part of the hash input).
+SPLITS = ("train", "dev", "calibration", "test", "head_train", "head_dev")
 
 
 def derive_seed(*parts) -> int:

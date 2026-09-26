@@ -72,13 +72,13 @@ class Standardized:
         ]
 
 
-def fit_standardizer(base, episodes: Sequence[Episode]) -> Standardized:
-    """Fit per-dimension mean/std over every history prefix of TRAIN episodes."""
+def fit_standardizer(base, episodes: Sequence[Episode], split: str = "train") -> Standardized:
+    """Fit per-dimension mean/std over every history prefix of the readout-training split."""
     if not episodes:
         raise ValueError("no episodes to fit the standardizer")
     splits = {ep.split for ep in episodes}
-    if splits != {"train"}:
-        raise ValueError(f"standardizer must be fitted on the train split only, got {sorted(splits)}")
+    if splits != {split}:
+        raise ValueError(f"standardizer must be fitted on the {split!r} split only, got {sorted(splits)}")
     rows = []
     for ep in episodes:
         rows.extend(base.encode_values(ep.observations, ep.actions, ep.rewards))
@@ -87,4 +87,4 @@ def fit_standardizer(base, episodes: Sequence[Episode]) -> Standardized:
     mean = [sum(r[k] for r in rows) / n for k in range(d)]
     std = [math.sqrt(sum((r[k] - mean[k]) ** 2 for r in rows) / n) for k in range(d)]
     std = [s if s > 1e-12 else 1.0 for s in std]
-    return Standardized(base, mean, std, "train")
+    return Standardized(base, mean, std, split)
