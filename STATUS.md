@@ -34,6 +34,7 @@
 | d72e769 | `python3 -m acpr.run --config configs/smoke.json --out runs/smoke_20260926T151604Z_d72e769` | 10/10 OK (5 arm × 2 변형) | 9.51s | 20.3MB |
 | d72e769 | `python3 -m acpr.run --config configs/pilot_memory_prereg.json --out …` | REFUSED (exit 2), 디렉터리 생성 안 됨 | – | – |
 | e5afde0 | 같은 테스트 명령 | 63/63 OK | 5.06s | – |
+| 5c08935 | 같은 테스트 명령 (문서만 변경) | 63/63 OK | 5.22s | – |
 
 smoke run 2의 source sha256은 현재 `acpr/`와 같다 (`461cedc9…`). 테스트 로그는 `runs/test_logs/`에 있다.
 
