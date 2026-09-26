@@ -62,7 +62,8 @@
 - train budget 10,000 transitions (branch 포함), dev 2,000, calibration 200 에피소드, test 200 에피소드
 - hidden 16, stage-1 20 epochs, stage-2 20 epochs, batch 16 에피소드, Adam, grad clip 5
 - MIE 0.10 (forced-commit accuracy, 절대값), α=0.05, bootstrap 10,000 (seed 12345)
-- 자원 상한: 총 8 CPU-hours, 프로세스당 wall 3h, peak RSS 2GB. 추정 소요 ~4.2 CPU-h는 micro-benchmark에서 외삽한 값이며 **미검증**이다.
+- dev split은 모든 arm이 **같은** branch 포함 데이터(2,000 transitions)를 쓴다. nobranch arm에게는 학습 분포와 약간 다르다는 점을 알고 둔 선택이다.
+- 자원 상한: 총 8 CPU-hours, 프로세스당 wall 3h, peak RSS 2GB. runner가 자동으로 집행하는 것은 프로세스당 wall과 RSS뿐이다. 총 CPU-hours는 여러 프로세스의 manifest `process_cpu_s` 합으로 운영자가 확인한다. 추정 소요 ~4.2 CPU-h는 micro-benchmark에서 외삽한 값이며 **미검증**이다. 상한을 넘은 arm은 NOT_RUN으로 기록되고, 분석에서는 INCOMPLETE가 된다.
 
 ## 6. 비교와 중단 규칙
 | 이름 | 비교 | 역할 |
