@@ -92,10 +92,11 @@ smoke run 2의 source sha256은 현재 `acpr/`와 같다 (`461cedc9…`). 테스
 | (커밋 전) | `python3 -m unittest tests.test_diagnose -v` | 12/12 OK | 2.03s |
 | (커밋 전) | 전체 테스트 | 75/75 OK | 7.19s |
 | 281020c | `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python3 -m acpr.diagnose --config configs/diag_eval_discriminability.json --out runs/diag_20260926T160006Z_281020c` | **HEADROOM_PRESENT**. OK 9, FAILED/OOM/CAP_EXCEEDED/NOT_RUN 0. wall 1,199.5s, peak RSS 26.9MB | 1,188.6s |
-| – | 결과 요약 스크립트 (읽기 전용) | – | 0.03s |
+| – | 결과 요약·교차확인 스크립트 (읽기 전용) | – | ~0.1s |
+| 5b8e2ac | `python3 -m unittest discover -s tests -t . -v` (최종) | 75/75 OK, skip 0 (`runs/test_logs/unittest_5b8e2ac.log`) | 6.99s |
 
-- 이 단계의 누적 CPU는 최종 테스트 전 기준 약 1,207s로, 상한 1,800s 이하다. 최종 테스트는 §7 끝에 기록한다.
-- run이 진행되는 동안 stop-hook 요구에 따라 **미완성 산출물 스냅샷을 3번 WIP 커밋**했다 (06d22fa, 95908bc, 그다음 커밋). 최종 파일은 run 종료 뒤 커밋이며, 원로그를 덮어쓰지 않고 이어 쓴 것이다.
+- 이 단계의 누적 CPU는 최종 테스트를 포함해 **약 1,215s**로, 상한 1,800s 이하다. 미측정 1회(~5s)는 추정치다.
+- run이 진행되는 동안 stop-hook 요구에 따라 **미완성 산출물 스냅샷을 3번 WIP 커밋**했다 (06d22fa, 95908bc, 6aa899b). 최종 파일은 run 종료 뒤 5b8e2ac에 커밋했으며, 원로그를 덮어쓰지 않고 이어 쓴 것이다.
 
 ### 결과 요약 (forced-commit 정확도, seed 1000/1001/1002)
 - informative control: 1.000/1.000/1.000 (full-action 성공 1.0, timeout 0)
