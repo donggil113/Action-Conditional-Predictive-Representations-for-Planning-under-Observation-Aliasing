@@ -1,13 +1,19 @@
 {
   "files_sha256": {
     "configs/diag_eval_discriminability.json": "637f4183a38fade1b3c4e492470c01e7cc94cccb11d8ed266554b4a50cdc2f67",
+    "configs/study_2x2_symmetric.json": "50544b43eadf402a35f028a53e2e858932a96f3e36f427ccd500426fcfc82578",
     "runs/diag_20260926T160006Z_281020c/cells.json": "ef5f759f320e346fb4a413849c0733d294ce60d613da95293643ea43b364e899",
     "runs/diag_20260926T160006Z_281020c/manifest.json": "7f50d1c1bc7bc126d2d363d56d7c56575d0152260bba4521604622d0a44cf88f",
-    "runs/diag_20260926T160006Z_281020c/verdict.json": "cfad9b0840d8834a4ef86d68d62ebf1acace1bacaef6b7ae93eb498b3b3649e3"
+    "runs/diag_20260926T160006Z_281020c/verdict.json": "cfad9b0840d8834a4ef86d68d62ebf1acace1bacaef6b7ae93eb498b3b3649e3",
+    "runs/study2x2_20260926T225310Z_fd781be/cells.json": "b47285300b61c5afc730886a987173e9ad3928016865371cd88adbc27e9db934",
+    "runs/study2x2_20260926T225310Z_fd781be/manifest.json": "e4faaad3f6cc699ef956a945796e181fc512b76109f0a512477b4e96695ae474",
+    "runs/study2x2_20260926T225310Z_fd781be/verdict.json": "5b7cd67936c2246c05b024354e813f13634f9786fa099103d960eec83c2128b5"
   },
-  "n_macros": 67,
+  "n_macros": 155,
   "sources": {
     "diagnostic": "runs/diag_20260926T160006Z_281020c",
-    "diagnostic_config": "configs/diag_eval_discriminability.json"
+    "diagnostic_config": "configs/diag_eval_discriminability.json",
+    "study_2x2": "runs/study2x2_20260926T225310Z_fd781be",
+    "study_config": "configs/study_2x2_symmetric.json"
   }
 }

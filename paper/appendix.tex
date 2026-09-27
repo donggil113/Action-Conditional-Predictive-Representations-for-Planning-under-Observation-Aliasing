@@ -16,6 +16,33 @@ The unit tests check the following technical properties. First, the aliasing con
 
 The protocol changed during development, and we record the changes here for transparency. After the first smoke run, the clue probe collapsed to the majority class, and planner metrics were dominated by the test set's clue base rate. The probe features were therefore standardized, and test clues were balanced by the evaluator. After the second smoke run and a positive-control check, forced-commit accuracy replaced full-action success as the primary metric. The reason was that an under-trained head made the full-action planner stall at the junction. For the same reason, head training was lengthened. The evaluator diagnostic then added train-only standardization of encoder features before the head, applied identically to every encoder, and checkpoint selection among \DiagCfgHeadEpochs{} epochs. None of these changes was made after observing learned-encoder comparisons. They were, however, made after looking at smoke and control outputs, so seeds used in those runs count as development data.
 
+\section{\texorpdfstring{Additional 2$\times$2 study tables}{Additional 2x2 study tables}}
+\label{app:study-tables}
+
+\begin{table}[htbp]
+\caption{Per-seed experience ledgers of the 2$\times$2 study (from the run manifest). Branch steps and restores occur only in the branching pretraining data. The readout pool and calibration are restore-free.}
+\label{tab:study-experience}
+\centering
+\small
+\input{tables/study_experience}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Full-action planner metrics per seed. They are confounded by commit-versus-stall behaviour (Section~\ref{sec:diag}) and are not used for decisions.}
+\label{tab:study-full}
+\centering
+\small
+\resizebox{\linewidth}{!}{\input{tables/study_fullaction}}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Pretraining prediction metrics per seed, for description only. The \acp{} and \msp{} objectives are not like-for-like: \acp{} predicts futures conditioned on actions, \msp{} predicts the action-marginal future. Readout-development metrics are computed on the restore-free development pool.}
+\label{tab:study-pretrain}
+\centering
+\small
+\resizebox{\linewidth}{!}{\input{tables/study_pretrain}}
+\end{table}
+
 \section{Planned experiments (NOT RUN)}
 \label{app:planned}
 \input{sections/appendix_planned}

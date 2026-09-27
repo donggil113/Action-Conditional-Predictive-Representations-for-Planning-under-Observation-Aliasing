@@ -6,6 +6,8 @@
 | 과학 | **SCIENCE_NOT_EVALUATED**: 파일럿 미실행. smoke 수치는 과학적 결과가 아니다 |
 | 파일럿 | **PREREGISTERED_NOT_APPROVED**: `configs/pilot_memory_prereg.json`, `pilot_approved=false`이며 runner가 거부한다 (exit 2) |
 | 신규성 | 인증하지 않음. [docs/PRIOR_ART.md](docs/PRIOR_ART.md) 기준으로 핵심 구성요소는 모두 기존 연구에 있다 |
+| 2×2 제한 비교 (3단계, 2026-09-27) | **LEARNING_BENEFIT_NOT_SUPPORTED** (합성 환경 관찰, 18/18 cell OK). 요약은 §8, 상세는 [docs/STUDY_2X2_RESULT.md](docs/STUDY_2X2_RESULT.md) |
+| 원고 | Working Draft v0 rev 2, **not submitted**. 공식 ICLR 2027 style을 수정 없이 사용하고 실제 pdfTeX로 빌드했다: 12쪽, 본문은 8쪽에서 끝난다. HUMAN_REVIEW_PENDING. [paper/PAPER_STATUS.md](paper/PAPER_STATUS.md) |
 | 평가 판별력 진단 (2026-09-26 2단계) | **HEADROOM_PRESENT** (기술 진단, 합성 환경). 9/9 cell OK. 요약은 §7, 상세는 [docs/DIAG_EVAL_DISCRIMINABILITY.md](docs/DIAG_EVAL_DISCRIMINABILITY.md) |
 
 소프트웨어 측면에서 파일럿을 실행할 수는 있다. 그러나 이는 신규성 인증이나 채택 가능성 확인이 아니며, 아래 blocker와 위험을 먼저 검토해야 한다.
@@ -117,4 +119,65 @@ smoke run 2의 source sha256은 현재 `acpr/`와 같다 (`461cedc9…`). 테스
 2. pilot stage-2에 train 표준화를 넣을지. 넣지 않으면 이번 판별력 결과가 그 경로에 그대로 적용되지 않는다.
 3. 천장 효과 대책.
 4. 순수 Python 성능 한계: cell당 약 130 CPU-s. 규모를 키우려면 torch 설치 승인이 필요하다.
+
+## 8. 3단계: 2×2 제한 비교와 원고 Working Draft v0 (인수 기준 `3958014`)
+**승인 범위:**
+- symmetric 환경 하나의 제한된 비교. CPU 상한 7,200 s, worker/thread 1, RSS 3 GiB.
+- 원고 빌드와 정적 검사는 별도 CPU 600 s 상한.
+- 금지: torch port, 새 환경, sweep, continuous control, 원고 자동 제출·공개.
+
+### 실행 순서와 결과
+1. 원고 v0(`b9f31ad`)를 먼저 작성했다. 진단 결과만 넣었고 2×2는 NOT RUN으로 표시했다.
+2. 연구 설계와 비교 기준을 고정해 `fd781be`에 커밋했다:
+   - 새 split `head_train`/`head_dev`
+   - `acpr/study2x2.py`, 회귀 테스트 7개, `configs/study_2x2_symmetric.json`
+   - seed registry: 이미 본 seed는 0, 7, 1000–1002이므로 1, 2, 3을 선택
+3. `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python3 -m acpr.study2x2 --config configs/study_2x2_symmetric.json --out runs/study2x2_20260926T225310Z_fd781be`
+   - 결과: **18/18 OK**, FAILED/OOM/CAP_EXCEEDED/NOT_RUN 0
+   - CPU 5,202 s, wall 5,242 s, peak RSS 42.0 MB
+   - 판정 **LEARNING_BENEFIT_NOT_SUPPORTED**
+4. 원고 rev 2에 결과를 반영했다: exporter, 표 7개, claim 43개.
+
+### 핵심 관찰 (forced-commit = junction 결정일 뿐 planning 성공률이 아님)
+- informative control은 1.000/1.000/1.000이다. readout pool이 restore-free일 때도 평가 경로가 작동한다.
+- 학습 arm 4개는 0.475–0.500, untrained encoder는 0.500이다.
+  - R1(ACP_b − untrained)은 seed별 0.000 / 0.000 / −0.025다.
+  - 모든 contrast가 [−0.025, 0.000] 범위다. 바닥 효과 때문에 branching 효과와 conditioning 효과를 **분리할 수 없다**. 동등성의 증거가 아니다.
+- 선형 probe는 학습 arm 0.51–0.75, untrained 0.52–0.56이다. 관찰일 뿐이며 판정에는 쓰지 않았다.
+- 같은 transition cap에서도 pretraining compute는 branch 0.62 GMAC, no-branch 1.19 GMAC로 다르다.
+- 환경 transition 총 134,083. restore는 branching pretraining에서만 10,048회이고, readout pool과 test에서는 0이다.
+
+### CPU 원장
+**실험 (상한 7,200 s)**
+| 항목 | CPU (user+sys) |
+|---|---|
+| 테스트 | 약 22 s. 일부 시간 미측정 약 11 s는 추정 |
+| timing benchmark (지표 미출력) | 15.4 s |
+| 본 run | 5,202.1 s |
+| 결과 요약 스크립트 | 약 0.5 s |
+| 최종 테스트 (`runs/test_logs/unittest_5d2829a_pre_final.log`, 82/82 OK) | 9.0 s |
+| **합계** | **약 5,250 s** |
+
+**빌드 (상한 600 s)**
+| 항목 | CPU (user+sys) |
+|---|---|
+| apt update + TeX Live 설치 | 38.8 s |
+| poppler-utils 설치 | 2.2 s |
+| build/export | 약 8 s |
+| **합계** | **약 49 s** |
+
+- 설치: GPG 검증된 Ubuntu 패키지 20개. TeX Live 2023 18개, poppler 2개이며 목록은 `paper/style_provenance/`에 있다. 모델·데이터 다운로드는 없다.
+- 공식 ICLR ZIP(39,348 bytes, sha256 `0d940dfa…`)을 내려받았다. style 파일은 수정하지 않았다.
+
+### 원고 상태
+- `paper/main.tex`, `paper/main.pdf`: 12쪽, 본문은 8쪽에서 끝남, LaTeX warning 0.
+- 공식 style은 수정하지 않았다. 다만 "Under review" header는 거짓 상태 표시가 되므로 document 수준에서 "Internal working draft — not submitted"로 바꿨다. 상세는 `paper/BUILD.md`.
+- anonymous 저자 블록 "Paper under double-blind review"는 style에 하드코딩되어 그대로 남겼다. 제출 상태를 주장하는 것이 아니다.
+- 원고 수치는 전부 exporter 매크로에서 나온다. 주장은 `paper/claim_evidence.tsv`에 정리했다.
+- 남은 것: 사람 검토(HUMAN_REVIEW_PENDING), 외부 action-conditioned 비교(Kwon et al. 등), 학습 encoder의 바닥 원인 진단. 모두 NOT RUN이다.
+
+### blocker와 다음 결정 (승인 필요)
+1. 학습 encoder가 untrained보다 나아지지 않은 원인. CONJECTURE 세 가지가 있으며, 확인하려면 새 탐색 run이 필요하다. 환경을 사후에 바꾸는 방식은 쓰지 않는다.
+2. 사용한 seed 1–3은 이제 개발 자료다. 사전등록 pilot을 할 경우 남은 seed는 4–9다.
+3. 순수 Python 성능 한계: 학습 cell 하나에 약 290–350 CPU-s가 든다.
 

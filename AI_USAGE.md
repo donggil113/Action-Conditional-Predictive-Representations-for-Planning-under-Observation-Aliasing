@@ -22,3 +22,12 @@
 - 사람 확인이 필요한 것: 판정 임계값(positive 0.90, negative ±0.10, MIE 0.10)과 설계 선택(train 표준화를 모든 encoder에 적용)이 타당한지.
 - 하위 에이전트는 사용하지 않았다. 설치, 다운로드, 유료 API, GPU도 사용하지 않았다.
 
+## 3단계 (2026-09-27, 2×2 제한 비교와 원고)
+- Claude Code가 한 일:
+  - `acpr/study2x2.py`, split/standardizer 변경, `tests/test_study2x2.py`, 비교 config 작성
+  - 2×2 run 실행
+  - `paper/` 전체(LaTeX 원고, exporter, claim table, BUILD/PAPER_STATUS) 작성
+- 원고 본문의 영어 문장은 모두 AI가 쓴 초안이다. 사람의 검토나 수정은 없다: **HUMAN_REVIEW_PENDING**.
+- 하위 에이전트는 사용하지 않았다. 선행연구 메타데이터는 1단계 검증 자료(`docs/prior_art_raw_en.md`)를 재사용했다.
+- 설치한 것: TeX Live 2023 최소 패키지와 poppler-utils. 모두 apt에서 받았고 GPG로 검증된다. 모델, 데이터, 유료 API, GPU는 사용하지 않았다.
+

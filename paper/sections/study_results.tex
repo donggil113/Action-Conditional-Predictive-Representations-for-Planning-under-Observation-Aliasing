@@ -1,2 +1,35 @@
-\paragraph{Status in this draft (v0).}
-The study has been specified but not yet run. Its design is as follows. Six arms are evaluated with three seeds in the symmetric maze: \acp{} with branching, \acp{} without branching, \msp{} with branching, \msp{} without branching, the untrained recurrent encoder, and the history-only informative control. Each collection method gets a pretraining budget of 10{,}000 environment transitions per seed. The two branching arms share one dataset exactly, and so do the two no-branching arms. All six arms use the readout protocol above with a separate, shared, restore-free readout pool. The paired contrasts, the interaction, and the decision rules are listed in Appendix~\ref{app:planned}. No results of this study are reported in v0.
+\paragraph{Design.}
+Six arms were evaluated with seeds \StudyCfgSeeds{} in the symmetric maze: A, \acp{} with branching; B, \acp{} without branching; C, \msp{} with branching; D, \msp{} without branching; E, the untrained recurrent encoder; and F, the history-only informative control. These seeds are the first three of a previously registered evaluation list whose evaluation outputs had not been viewed. They are new seeds of the same design, not an independent replication. Each collection method spent exactly \StudyCfgPretrainBudget{} environment transitions per seed on pretraining, with branch steps included for the branching data. Arms A and C trained on one shared branching dataset, and B and D on one shared no-branching dataset. The comparison between A and B, or between C and D, is therefore a comparison of collection methods at equal transition cost, not a comparison on identical data. Pretraining used \StudyCfgPretrainEpochs{} epochs at learning rate \StudyCfgPretrainLR{}. These settings were taken from an earlier plan and were not tuned in this study. All six arms were read out through the same restore-free pool, collected once per seed without branching: \StudyCfgPoolTrain{} training and \StudyCfgPoolDev{} development transitions. Each arm's feature standardization was fitted on its own features of the training pool. Head checkpoints at \StudyCfgHeadEpochs{} epochs were selected on development reward error, and \StudyCfgNTest{} clue-balanced test episodes were used. The decision rules were fixed before the run: the positive control had to reach at least \StudyCfgPosMin{}; learning benefit required ACP$_b-$untrained $\geq$ \StudyCfgMIE{} in every seed; saturation meant that all learned arms were at least \StudyCfgSatMin{}; and a collection or conditioning effect required the corresponding pre-registered contrast to be at least \StudyCfgMIE{} in every seed. The interaction and the non-registered contrasts are reported descriptively.
+
+\paragraph{Accounting and splits.}
+Across the three seeds, pretraining consumed \StudyPretrainTransitions{} transitions and \StudyPretrainRestores{} restores, all of them in the branching datasets. The readout pool consumed \StudyPoolTransitions{} transitions and \StudyPoolTrainRestores{} restores. Testing consumed \StudyTestTransitions{} transitions with \StudyTestRestores{} restores. Table~\ref{tab:study-experience} in the appendix gives the per-seed ledgers. The five splits share no latent episode seeds (\StudyLatentSeedOverlapTotal{} overlaps). Branch rollouts stay inside their root episodes. By design, the branching and no-branching pretraining sets share their first \StudySharedRootsMin--\StudySharedRootsMax{} root episodes, since branching does not alter main trajectories. Seed separation does not imply content separation: between \StudyPrefixOverlapMin{} and \StudyPrefixOverlapMax{} of the test episodes' junction-prefix observation sequences also occur in a pretraining or readout set.
+
+\paragraph{Observations.}
+All \StudyNumOK{} of \StudyNumCells{} cells completed (Table~\ref{tab:study}), and the pre-registered decision rule returned\\ \StudyVerdict{}. The informative control again reached forced-commit accuracy \StudyForcedInfoMin{} in every seed, so the readout was able to exploit clue information when it was cleanly present. The four learned encoders scored between \StudyForcedLearnedMin{} and \StudyForcedLearnedMax{}, and the untrained encoder scored \StudyForcedRandMax{}. The pre-registered learning-benefit contrast ACP$_b-$untrained was \StudyLearnRandSeedI, \StudyLearnRandSeedII, and \StudyLearnRandSeedIII{} in the three seeds. Every contrast in Table~\ref{tab:contrasts} lies between \StudyAllContrastMin{} and \StudyAllContrastMax. These values do not show that branching and action conditioning have no effect. Every learned arm is at the chance floor of this readout, so the contrasts cannot separate the two effects. Pretraining itself reduced the prediction loss of every learned arm (Table~\ref{tab:study-pretrain}). Linear probes of the learned encoders' junction features scored between \StudyProbeLearnedMin{} and \StudyProbeLearnedMax{} on test episodes, compared with \StudyProbeRandMin--\StudyProbeRandMax{} for the untrained encoder. Some learned features may therefore carry partially decodable clue information that the reward head did not turn into decisions; with 200 probe episodes per cell, we treat this as an observation to examine, not a finding. As in the diagnostic, the full-action metrics varied with commit-versus-stall behaviour, with timeout rates up to \StudyTimeoutNonInfoMax{} for arms whose forced-commit accuracy was at chance (Table~\ref{tab:study-full}).
+
+\begin{table}[t]
+\caption{2$\times$2 study, per seed (\StudySeeds). The primary metric is forced-commit accuracy, a junction decision rather than a planning success rate. The probe is a logistic probe fitted on the calibration split and scored on test junction features. ``Head epochs'' is the checkpoint selected on development reward error; the grid was not extended when 80 was selected. Source: \texttt{runs/study2x2\_20260926T225310Z\_fd781be}.}
+\label{tab:study}
+\centering
+\small
+\input{tables/study_forced}
+\end{table}
+
+\begin{table}[t]
+\caption{Paired forced-commit contrasts per seed. The minimum effect of interest (\StudyCfgMIE) is applied only to the four contrasts that were registered with it before the study; the others are descriptive (``n/a''). A value of zero at the chance floor is not evidence of equivalence.}
+\label{tab:contrasts}
+\centering
+\small
+\resizebox{\linewidth}{!}{\input{tables/study_contrasts}}
+\end{table}
+
+\paragraph{Equal transitions are not equal compute.}
+At the same transition cap, the branching datasets contain fewer episodes and fewer prediction windows. Pretraining on them therefore cost roughly half the multiply-accumulates and CPU time of the no-branching datasets (Table~\ref{tab:compute}). Readout cost was similar across arms, because all arms shared the readout pool. Test transitions differ between arms because stalling episodes run until timeout. The study took \StudyCPUSeconds{} CPU seconds and \StudyTotalGMAC{} GMAC, with peak resident memory \StudyPeakRSSMB{} MB, in a single process under a hard cap of \StudyCfgCPUCap{} CPU seconds (commit \texttt{\StudyCommit}).
+
+\begin{table}[t]
+\caption{Compute and test experience per arm (range over seeds). Pretraining uses the same transition cap for branching and no-branching data, but not the same compute.}
+\label{tab:compute}
+\centering
+\small
+\input{tables/study_compute}
+\end{table}

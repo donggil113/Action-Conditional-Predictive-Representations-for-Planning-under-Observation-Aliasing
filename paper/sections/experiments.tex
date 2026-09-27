@@ -24,6 +24,6 @@ Full-action success separates the two clue-blind encoders, for which forced-comm
 \paragraph{Cost.}
 The diagnostic used \DiagTransitionsAll{} environment transitions in total. Of these, \DiagTransitionsTrainMain{} main and \DiagTransitionsTrainBranch{} branch steps were readout-training data, with \DiagTransitionsTrainRestores{} restores. Test episodes used \DiagTransitionsTest{} transitions and no restores. The run took \DiagCPUSeconds{} CPU seconds and \DiagTotalGMAC{} GMAC in a single process with peak resident memory \DiagPeakRSSMB{} MB (commit \texttt{\DiagCommit}). The readout-training data in this diagnostic were collected with branching, so this readout was \emph{not} restore-free. The 2$\times$2 study below uses a separate restore-free readout pool.
 
-\subsection{2$\times$2 study: action conditioning $\times$ branching}
+\subsection{\texorpdfstring{2$\times$2 study: action conditioning $\times$ branching}{2x2 study: action conditioning x branching}}
 \label{sec:study}
 \input{sections/study_results}

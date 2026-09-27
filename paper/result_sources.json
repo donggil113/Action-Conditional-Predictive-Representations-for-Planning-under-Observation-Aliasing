@@ -1,4 +1,6 @@
 {
   "diagnostic": "runs/diag_20260926T160006Z_281020c",
-  "diagnostic_config": "configs/diag_eval_discriminability.json"
+  "diagnostic_config": "configs/diag_eval_discriminability.json",
+  "study_config": "configs/study_2x2_symmetric.json",
+  "study_2x2": "runs/study2x2_20260926T225310Z_fd781be"
 }
