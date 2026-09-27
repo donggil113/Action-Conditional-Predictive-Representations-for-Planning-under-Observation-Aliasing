@@ -1,0 +1,104 @@
+{
+  "complete_seeds": [
+    1,
+    2,
+    3
+  ],
+  "contrasts": {
+    "acp_branch_minus_acp_nobranch": {
+      "all_seeds_ge_mie": false,
+      "mean": -0.00833333333333334,
+      "mie_applies": true,
+      "per_seed": [
+        0.0,
+        0.0,
+        -0.025000000000000022
+      ]
+    },
+    "acp_branch_minus_msp_branch": {
+      "all_seeds_ge_mie": false,
+      "mean": -0.00833333333333334,
+      "mie_applies": true,
+      "per_seed": [
+        0.0,
+        0.0,
+        -0.025000000000000022
+      ]
+    },
+    "acp_branch_minus_random": {
+      "all_seeds_ge_mie": false,
+      "mean": -0.00833333333333334,
+      "mie_applies": true,
+      "per_seed": [
+        0.0,
+        0.0,
+        -0.025000000000000022
+      ]
+    },
+    "acp_nobranch_minus_msp_nobranch": {
+      "all_seeds_ge_mie": false,
+      "mean": 0.0,
+      "mie_applies": true,
+      "per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "acp_nobranch_minus_random": {
+      "all_seeds_ge_mie": "n/a",
+      "mean": 0.0,
+      "mie_applies": false,
+      "per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "interaction": {
+      "all_seeds_ge_mie": "n/a",
+      "mean": -0.00833333333333334,
+      "mie_applies": false,
+      "per_seed": [
+        0.0,
+        0.0,
+        -0.025000000000000022
+      ]
+    },
+    "msp_branch_minus_msp_nobranch": {
+      "all_seeds_ge_mie": "n/a",
+      "mean": 0.0,
+      "mie_applies": false,
+      "per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "msp_branch_minus_random": {
+      "all_seeds_ge_mie": "n/a",
+      "mean": 0.0,
+      "mie_applies": false,
+      "per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "msp_nobranch_minus_random": {
+      "all_seeds_ge_mie": "n/a",
+      "mean": 0.0,
+      "mie_applies": false,
+      "per_seed": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "flags": [],
+  "metric": "forced_commit_accuracy",
+  "mie": 0.1,
+  "missing_or_failed": [],
+  "verdict": "LEARNING_BENEFIT_NOT_SUPPORTED"
+}

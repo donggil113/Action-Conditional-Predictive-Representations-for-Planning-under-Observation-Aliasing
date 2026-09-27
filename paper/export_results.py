@@ -255,6 +255,28 @@ def export_study(run_dir: Path, m: Macros, used: dict) -> None:
         "Arm & Pretrain CPU (s) & Pretrain GMAC & Readout CPU (s) & Test transitions \\\\\n\\midrule\n"
         + "\n".join(rows) + "\n\\bottomrule\n\\end{tabular}\n"
     )
+    ov = {k: [data[str(s)]["split_checks"]["test_junction_prefix_obs_overlap"][k] for s in seeds]
+          for k in ("pretrain_branch", "pretrain_nobranch", "head_train")}
+    allov = [v for vs in ov.values() for v in vs]
+    m.add("StudyPrefixOverlapMin", f2(min(allov)), f"{rel}/manifest.json:data.*.split_checks.test_junction_prefix_obs_overlap")
+    m.add("StudyPrefixOverlapMax", f2(max(allov)), f"{rel}/manifest.json:data.*.split_checks.test_junction_prefix_obs_overlap")
+    shared = [data[str(s)]["split_checks"]["pretrain_branch_nobranch_shared_root_episodes"] for s in seeds]
+    m.add("StudySharedRootsMin", intc(min(shared)), f"{rel}/manifest.json:data.*.split_checks.pretrain_branch_nobranch_shared_root_episodes")
+    m.add("StudySharedRootsMax", intc(max(shared)), f"{rel}/manifest.json:data.*.split_checks.pretrain_branch_nobranch_shared_root_episodes")
+    seed_ov = [sum(v for v in data[str(s)]["split_checks"]["latent_seed_overlap_between_splits"].values()) for s in seeds]
+    m.add("StudyLatentSeedOverlapTotal", str(sum(seed_ov)), f"{rel}/manifest.json:data.*.split_checks.latent_seed_overlap_between_splits")
+    tr = man["env_transitions"]
+    for k, name in (("pretrain_branch_restores", "PretrainRestores"), ("head_train_restores", "PoolTrainRestores"),
+                    ("head_dev_restores", "PoolDevRestores"), ("pretrain_nobranch_restores", "NoBranchRestores"),
+                    ("test_restores", "TestRestores"), ("test_eval", "TestTransitions"),
+                    ("calibration_eval", "CalibTransitions"), ("split_check_test_prefix_eval", "PrefixCheckTransitions")):
+        m.add(f"Study{name}", intc(tr[k]), f"{rel}/manifest.json:env_transitions.{k}")
+    pool = tr["head_train_main"] + tr["head_dev_main"]
+    m.add("StudyPoolTransitions", intc(pool), f"{rel}/manifest.json:env_transitions.head_train_main+head_dev_main")
+    pre = tr["pretrain_branch_main"] + tr["pretrain_branch_branch"] + tr["pretrain_nobranch_main"]
+    m.add("StudyPretrainTransitions", intc(pre), f"{rel}/manifest.json:env_transitions.pretrain_*")
+    sel80 = sum(1 for c in cells if c.get("status") == "OK" and c.get("selected_at_max_candidate"))
+    m.add("StudySelectedAtMax", str(sel80), f"{rel}/cells.json:selected_at_max_candidate")
     m.add("StudyCPUSeconds", intc(round(man["time"]["process_cpu_s"])), f"{rel}/manifest.json:time.process_cpu_s")
     m.add("StudyPeakRSSMB", f"{man['peak_rss_mb']:.1f}", f"{rel}/manifest.json:peak_rss_mb")
     m.add("StudyTotalGMAC", f"{man['total_mac'] / 1e9:.2f}", f"{rel}/manifest.json:total_mac")
@@ -291,6 +313,29 @@ def export_config(path: Path, prefix: str, m: Macros, used: dict) -> dict:
     return cfg
 
 
+def export_study_config(path: Path, m: Macros, used: dict) -> None:
+    cfg = json.loads(path.read_text())
+    used[str(path.relative_to(REPO))] = sha(path)
+    rel = str(path.relative_to(REPO))
+    pt, hp, hd, ev, dec, caps = (cfg["pretraining"], cfg["readout_pool"], cfg["head"], cfg["eval"],
+                                 cfg["decision"], cfg["resource_caps"])
+    m.add("StudyCfgSeeds", ", ".join(str(s) for s in cfg["seeds"]), f"{rel}:seeds")
+    m.add("StudyCfgPretrainBudget", intc(pt["budget"]), f"{rel}:pretraining.budget")
+    m.add("StudyCfgBranchProb", str(pt["branch_prob"]), f"{rel}:pretraining.branch_prob")
+    m.add("StudyCfgPretrainEpochs", str(pt["epochs"]), f"{rel}:pretraining.epochs")
+    m.add("StudyCfgPretrainLR", str(pt["lr"]), f"{rel}:pretraining.lr")
+    m.add("StudyCfgPoolTrain", intc(hp["train_budget"]), f"{rel}:readout_pool.train_budget")
+    m.add("StudyCfgPoolDev", intc(hp["dev_budget"]), f"{rel}:readout_pool.dev_budget")
+    m.add("StudyCfgHeadEpochs", "/".join(str(e) for e in hd["epoch_candidates"]), f"{rel}:head.epoch_candidates")
+    m.add("StudyCfgNTest", str(ev["n_test"]), f"{rel}:eval.n_test")
+    m.add("StudyCfgNCalib", str(ev["n_calibration"]), f"{rel}:eval.n_calibration")
+    m.add("StudyCfgMIE", f"{dec['mie']:.2f}", f"{rel}:decision.mie")
+    m.add("StudyCfgPosMin", f"{dec['positive_control_min']:.2f}", f"{rel}:decision.positive_control_min")
+    m.add("StudyCfgSatMin", f"{dec['saturation_min']:.2f}", f"{rel}:decision.saturation_min")
+    m.add("StudyCfgCPUCap", intc(caps["cpu_seconds_hard"]), f"{rel}:resource_caps.cpu_seconds_hard")
+    m.add("StudyCfgStageCap", intc(caps["stage_cpu_seconds_total"]), f"{rel}:resource_caps.stage_cpu_seconds_total")
+
+
 def main() -> int:
     sources = json.loads((PAPER / "result_sources.json").read_text())
     used: dict = {}
@@ -302,6 +347,8 @@ def main() -> int:
     m.add("DiagCfgNegDev", f"{dcfg['decision']['negative_control_max_abs_dev_from_half']:.2f}",
           sources["diagnostic_config"] + ":decision.negative_control_max_abs_dev_from_half")
     export_diag(REPO / sources["diagnostic"], m, used)
+    if sources.get("study_config"):
+        export_study_config(REPO / sources["study_config"], m, used)
     study = sources.get("study_2x2")
     if study:
         export_study(REPO / study, m, used)

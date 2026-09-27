@@ -1,0 +1,114 @@
+{
+  "arm_notes": {
+    "acp": "small re-implementation in the spirit of action-conditioned future prediction; not an official reproduction of Kwon et al. (arXiv:2402.07102)",
+    "branch_vs_nobranch": "collection-method difference under the same transition cap, not identical data",
+    "msp": "action-free ablation (zero action input); nominal parameter parity only; not a strong or SOTA baseline"
+  },
+  "arms": [
+    "informative_control",
+    "random_recurrent",
+    "acp_branch",
+    "acp_nobranch",
+    "msp_branch",
+    "msp_nobranch"
+  ],
+  "behavior_forward_prob": 0.8,
+  "decision": {
+    "metric": "forced_commit_accuracy",
+    "mie": 0.1,
+    "mie_applies_to": [
+      "acp_branch_minus_msp_branch (H1)",
+      "acp_branch_minus_acp_nobranch (S1)",
+      "acp_nobranch_minus_msp_nobranch (S2)",
+      "acp_branch_minus_random (R1)"
+    ],
+    "positive_control_min": 0.9,
+    "required_complete_seeds": 3,
+    "rules": [
+      "INCOMPLETE if any required cell is not OK",
+      "EVALUATOR_UNRESOLVED if informative_control < 0.90 in any seed",
+      "LEARNING_BENEFIT_NOT_SUPPORTED if R1 (acp_branch - random) < MIE in any seed",
+      "SATURATED_COMPARISON if all four learned arms >= 0.95 in every seed",
+      "PRELIMINARY_COLLECTION_BENEFIT if S1 >= MIE in every seed (equal transition cap; reset privilege required; compute differs)",
+      "ACTION_CONDITIONING_ONLY if H1 or S2 >= MIE in every seed but S1 is not (not distinguishable from the existing action-conditioning explanation)",
+      "NO_CONSISTENT_MIE_CONTRAST otherwise (not evidence of zero effect or equivalence)",
+      "Other contrasts and the interaction are reported descriptively without MIE"
+    ],
+    "saturation_min": 0.95
+  },
+  "eval": {
+    "gamma": 0.9,
+    "n_calibration": 200,
+    "n_test": 200,
+    "plan_horizon": 2,
+    "stratify_clue": true
+  },
+  "frozen_before_run": "2026-09-26; seeds, arms, data budgets, pretraining and readout settings, decision rules and caps fixed before any study metric was computed",
+  "head": {
+    "batch_episodes": 16,
+    "epoch_candidates": [
+      20,
+      40,
+      80
+    ],
+    "lr": 0.01,
+    "selection_rule": "lowest head_dev reward_mse among checkpoints of one 80-epoch run; ties -> fewer epochs; test never used; grid not extended if 80 is selected"
+  },
+  "hidden": 16,
+  "horizon": 3,
+  "maze": {
+    "corridor_max": 6,
+    "corridor_min": 3,
+    "n_distractors": 4,
+    "timeout_slack": 6
+  },
+  "name": "study_2x2_symmetric_v1",
+  "pretraining": {
+    "batch_episodes": 16,
+    "branch_prob": 0.25,
+    "budget": 10000,
+    "clip_norm": 5.0,
+    "epochs": 20,
+    "lr": 0.01,
+    "note": "Fixed from configs/pilot_memory_prereg.json stage1 (default lr); the pre-registered lr grid is NOT used in this limited study (no tuning).",
+    "obs_weight": 1.0,
+    "reward_weight": 1.0
+  },
+  "question": "Under the same transition budget and readout protocol, how do the effects of branching collection and action conditioning separate?",
+  "readout_pool": {
+    "branch_prob": 0.0,
+    "dev_budget": 2000,
+    "note": "Shared by all six arms; collected once per seed with no branching and no restores (splits head_train/head_dev). No existing pool met the restore-free condition (the diagnostic pool used branching).",
+    "train_budget": 10000
+  },
+  "resource_caps": {
+    "address_space_gib": 3,
+    "cpu_kill_grace_s": 20,
+    "cpu_seconds_hard": 7000,
+    "estimate_note": "~1,800 CPU-s per seed from a timing-only benchmark (stage-1 2.9 s/epoch branch, 5.7 s/epoch no-branch; readout ~3.0 s/epoch)",
+    "initial_cell_cost_estimate_s": {
+      "fixed": 280,
+      "learned": 450
+    },
+    "reserve_s": 30,
+    "stage_cpu_seconds_total": 7200,
+    "threads": 1,
+    "workers": 1
+  },
+  "run_kind": "study",
+  "seed_registry": {
+    "note": "Seeds 1-3 were used by unit tests only to collect small-maze train-split data (no evaluation). After this run seeds 1-3 are viewed and count as development data. New seeds are not an independent external replication.",
+    "rule": "first three seeds of the pre-registered evaluation list [0..9] whose evaluation outputs were not viewed before this run",
+    "viewed_before": {
+      "0": "smoke runs and unit tests (evaluation viewed)",
+      "1000-1002": "evaluator diagnostic",
+      "7": "tiny unit-test configs (evaluation executed)"
+    }
+  },
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "variant": "symmetric"
+}

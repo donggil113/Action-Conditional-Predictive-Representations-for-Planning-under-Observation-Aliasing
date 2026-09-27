@@ -1,0 +1,2 @@
+{"out": "runs/study2x2_20260926T225310Z_fd781be", "verdict": "LEARNING_BENEFIT_NOT_SUPPORTED", "OK": 18, "FAILED": 0, "OOM": 0, "CAP_EXCEEDED": 0, "NOT_RUN": 0, "cpu_s": 5202.040634577}
+exit=0
